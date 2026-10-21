@@ -57,9 +57,17 @@ def main():
     print(f"compiladores    : {procs} x cl.exe ativos")
     if counter:
         done, queued = counter
-        # files in this round that are done; the round also re-saves already-done ones
+        # destaques: a rodada reescreve parte do pool; o "efetivo unico" so cresce quando a rodada
+        # passa da fronteira do pool (arquivos que nunca tinham .obj).
         print(f"rodada atual    : [{done}/{queued}] tarefas processadas nesta rodada")
+        frontier = total_objs
+        unique_effective = max(frontier, done) if queued > frontier else frontier
+        # quando a rodada e maior que o pool, done conta arquivos novos apos a fronteira
+        if queued > frontier:
+            unique_effective = frontier
         print(f"aproveitaveis   : {total_objs} objetos em disco (nao serao recompilados: flags estaveis)")
+        print(f"EFETIVO UNICO   : {unique_effective} / {expected}  ({unique_effective / expected * 100:.1f}%)"
+              "  = pool em disco + novos que a rodada ja passou")
     if compiling:
         print("compilando agora :")
         for name in compiling[-4:]:
