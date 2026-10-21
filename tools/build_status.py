@@ -76,7 +76,8 @@ def main():
         print("ATENCAO: falha recente no log!")
         for l in tailed:
             if "FAILED" in l or "error C" in l:
-                print("   ", l[:140])
+                safe = l.encode("ascii", "replace").decode()
+                print("   ", safe[:140])
 
 
 if __name__ == "__main__":
