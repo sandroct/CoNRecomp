@@ -3,14 +3,16 @@
 Data: 2026-10-21
 
 ## Etapa atual
-Etapa 1 (Consolidação) — em andamento; git init/commit pendente.
+Etapa 2 (Extração e identificação) — em andamento: SYSTEM.CNF lido (SLUS_205.65 CONFIRMADO), ELF extraído e
+SHA-256 igual ao do Ghidra; listagem completa do disco rodando em background (disc_listing.txt).
+Teve O(n²) corrigido (ArrayList). Falta: IRX/vídeos do listing + docs/GAME.md complemento.
 
 ## Concluído
-- Etapa 0 (Auditoria, parcial — ver docs/AUDIT.md quando escrito):
+- Etapa 0 (Auditoria, parcial — docs/AUDIT.md ainda a escrever):
   - runtime/README.md do referência lido: runtime fork do PS2Recomp (TaylorNAlbarnaz, branch sotc-port,
-    commit ac013f/`ac9efa0` 2026-10-01) com IOP/SIF, SPU2, GS do PCSX2, IPU (AC5, Apache-2.0), VU1 AOT (vu1_recomp).
+    commit `ac9efa0` 2026-10-01) com IOP/SIF, SPU2, GS do PCSX2, IPU (AC5, Apache-2.0), VU1 AOT (vu1_recomp).
     Hipótese "usar o runtime/ do referência" CONFIRMADA.
-- Etapa 1:
+- Etapa 1 (CONCLUÍDA, commit 665a9b1):
   - Projeto criado em C:\recomp\CoNRecomp.
   - .gitignore criado ANTES de tudo (regra nº 1): game/, extracted/, build/, bench/, generated? (ver abaixo),
     textures/, mods/, shadercache*/, *.iso/*.bin/*.exe/*.dll.
@@ -22,6 +24,9 @@ Etapa 1 (Consolidação) — em andamento; git init/commit pendente.
     Etapa 4 como recomp/cn.toml).
   - Adaptados (não copiados verbatim): CMakeLists.txt (raiz, CON_*), build.py (con.exe, CON_JOBS/CON_DEPS),
     src/CMakeLists.txt (placeholder; completo no M1).
+- Etapa 2 (em andamento): SYSTEM.CNF lido (SLUS_205.65 CONFIRMADO, VER 1.02, NTSC); ELF extraído
+  (9.249.659 bytes, SHA-256 9A60F13C…56FF0), IDÊNTICO ao analisado no Ghidra; tools/win/iso_read.ps1 escrito;
+  docs/GAME.md esboçado; listagem completa do disco correndo em background.
 
 ## Excluído do referência (urban-específico; reescrever/adaptar depois)
 - tools/: find_sdk_functions.py, generate.py, ghidra_functions.py, release.py, frame_times.py, task_list.py,
@@ -39,12 +44,13 @@ Etapa 1 (Consolidação) — em andamento; git init/commit pendente.
 - JDK 27 instalado (guia pede JDK 21); Ghidra 12.1.4 + ger-2.1.38 já funcionou com JDK 27 — sem problema até agora.
 
 ## Próximos passos
-1. TERMINAR Etapa 1: README.md, THIRD-PARTY.md, docs/COPIED_FROM_REFERENCE.md, docs/AUDIT.md (Etapa 0), git init,
-   1º commit (.gitignore já no lugar).
-2. Etapa 2: SYSTEM.CNF → nome do ELF (hipótese SLUS_205.65), extração em extracted/, SHA-256, docs/GAME.md,
-   lista de IRX/vídeos.
-3. Etapa 3: refinar mapa (tools/ghidra_functions.py adaptado), SDK por assinatura, VU1, RNG, save, GameIndex.
-4. Etapa 4: recomp/cn.toml (formato do fork), tools/generate.py adaptado, primeira geração.
+1. Etapa 2 (faltam): listagem/IRX/vídeos do disc_listing.txt + complemento de docs/GAME.md + commit
+   (iso_read.ps1, GAME.md, atualizações).
+2. AVISAR USUÁRIO: Python 3.10+ não está instalado — necessário para Etapa 4 (build.py generate). Instrução:
+   instalar de https://www.python.org/downloads/ (3.12, marcar "Add python.exe to PATH") OU
+   `winget install -e --id Python.Python.3.12` (o usuário decide; regra: sem instalar sem avisar).
+3. Etapa 3: refinar mapa; SDK por assinatura; VU1/RNG/rede/multitap/save/GameIndex.
+4. Etapa 4: recomp/cn.toml formato do fork; tools/generate.py adaptado; primeira geração (precisa Python + ps2_recomp.exe).
 
 ## Comandos úteis
 - cd C:\recomp\CoNRecomp

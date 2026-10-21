@@ -26,3 +26,23 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
   Name,Start,End,Size; ENTRYPOINT 0x00100008) e recomp/cn_config_ghidra_draft.toml (draft, formato ran-j).
 - C1.9 — adaptar build.py (con.exe, CON_JOBS, CON_DEPS, CON_BUILD_RECOMP; launcher/release removidos).
 - C1.10 — criar docs/STATE.md, docs/PROGRESS.md (este).
+- C1.11 — .gitignore: adicionados `generated/` e `textures/` antes do commit.
+- C1.12 — git init -b main; add -A; commit 665a9b1 = Etapa 1 CONCLUÍDA.
+
+## Etapa 2 — Extração e identificação (2026-10-21)
+
+- E2.1 — ISO confirmada: `C:\PROJETOS\...\ISO E BIOS\Champions of Norrath (USA).iso`, 7,75 GB (hipótese: DVD-DL
+  dual-layer; não verificado ainda). BIOS ao lado: scph39001.bin/.mec/.nvm + SCPH30004R.bin.
+- E2.2 — Escrito `tools/win/iso_read.ps1`: leitor ISO9660 genérico (PowerShell puro) porque Python não está
+  instalado e iso_extract.py precisa dele. MOTIVO: contornar dependência para a Etapa 2; Python segue
+  obrigatório para Etapa 4 (build.py generate).
+- E2.3 — `iso_read.ps1 -ExtractPath SYSTEM.CNF`: **BOOT2 = cdrom0:\SLUS_205.65;1 — VER = 1.02 — VMODE = NTSC**.
+  Hipótese SLUS_205.65 CONFIRMADA por leitura direta do disco.
+- E2.4 — ELF extraído: `extracted/SLUS_205.65`, 9.249.659 bytes, SHA-256
+  `9A60F13C5C316D619A288821CC9496CC61864106B7872B52EE141CAED3756FF0`.
+- E2.5 — Comparação com `C:\Users\Alessandro\Decomp\slus-20565\game.elf`: SHA-256 IDÊNTICO. É o mesmo ELF
+  analisado no Ghidra → o mapa `recomp/cn_functions.csv` (14.659 funções) continua válido.
+- E2.6 — Entrada do ELF para Etapa 4: entry 0x00100008 (do CSV, ENTRYPOINT 0x00100008, tamanho 576).
+- E2.7 — Listagem completa do disco (disc_listing.txt): primeira tentativa vazou por O(n²) num array PS;
+  Read-Dir trocado para ArrayList; rodando em background.
+
