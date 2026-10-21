@@ -78,7 +78,7 @@ else()
 
     # Small generated files that still make MSVC run out of compiler heap (C1002) with
     # /d2OptimizeHugeFunctions: a giant function fits a few instructions of C++ into a few KB.
-    set(CON_NOOPT_SOURCES "ConstructTextPass__10VIMaterialiR8VIRasterP7VIQWord_0x10cedf8.cpp"
+    set(CON_NOOPT_SOURCES "ConstructTextPass__10VIMaterialiR8VIRasterP7VIQWord_0x10cedf8.cpp;entry_0010e310_0x10e310.cpp"
         CACHE STRING "Generated files under CON_HUGE_SOURCE_BYTES compiled /Od (C1002)")
     set(CON_NOOPT_PATHS "")
     foreach(name IN LISTS CON_NOOPT_SOURCES)
@@ -91,6 +91,23 @@ else()
     if(CON_NOOPT_PATHS)
         set_source_files_properties(${CON_NOOPT_PATHS} PROPERTIES COMPILE_OPTIONS "/Od")
     endif()
+
+    # C1060 (compiler heap) whack-a-mole: generated switch-dispatch functions ("caseD_..." and friends)
+    # blow MSVC's heap even at small file size. They match CON_NOOPT_PATTERNS and are compiled /Od, so
+    # ONLY their own rules change (the already built objects stay valid).
+    set(CON_NOOPT_PATTERNS "^case[A-Z]?_" CACHE STRING "Regex of generated file names compiled /Od (C1060)")
+    foreach(pattern IN LISTS CON_NOOPT_PATTERNS)
+        set(CON_PATTERN_PATHS "")
+        foreach(source IN LISTS CON_GENERATED_SOURCES)
+            get_filename_component(sourceName "${source}" NAME)
+            if(sourceName MATCHES "${pattern}")
+                list(APPEND CON_PATTERN_PATHS "${source}")
+            endif()
+        endforeach()
+        if(CON_PATTERN_PATHS)
+            set_source_files_properties(${CON_PATTERN_PATHS} PROPERTIES COMPILE_OPTIONS "/Od")
+        endif()
+    endforeach()
 
     add_library(con_game_code STATIC ${CON_GENERATED_SOURCES})
     target_link_libraries(con_game_code PUBLIC con_game_code_huge)
