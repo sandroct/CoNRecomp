@@ -103,4 +103,10 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
   `ps2___sce_dnas2_symbol11078` (5,6 MB). Correções: `CON_NOOPT_SOURCES` e `CON_HUGE_NOOPT`
   (listas de fontes que compilam com `/Od`), `CON_HUGE_JOBS=1`, build com `-j 4`. Rebuild rodando
   em background (mesmo log).
+- E5.8 — 2ª tentativa: 2 falhas novas (PCH em outra função; DNAS mesmo com /Od). 3ª rodada:
+  **stubamos os 2 arquivos DNAS** (dados cifrados lidos como código; ver docs/GAME.md), `skip` no
+  cn.toml para futuras gerações, e removemos **PCH + `/d2OptimizeHugeFunctions`** do lib normal
+  (C4883 automático nas funções enormes = /Od-like; correto, mais lento — velocidade é pós-M1).
+  2.993/90.902 objetos OK quando o processo do build foi ceifado (restart do servidor; sem cl/ninja
+  vivos). Re-disparado incremental (commit d011c89).
 
