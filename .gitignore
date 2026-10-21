@@ -1,0 +1,57 @@
+# game content, extracted data, user textures/patches: never commit or distribute.
+game/
+extracted/
+textures/
+texturepatches/
+mods/
+
+# build outputs and generated code (never in the repo)
+build/
+bench/
+generated/
+installed/
+
+# compiled runtime binaries (built from thirdparty/, never copied)
+*.exe
+*.dll
+*.lib
+*.obj
+
+# disc images and BIOS (user must own these; never in the repo)
+*.iso
+*.bin
+*.mdf
+*.toc
+*.iso.md5
+*.json.7z
+*.chd
+
+# shader caches
+shadercache*/
+_Cache_/
+.gs_cache/
+
+# extracted/generated outputs
+*/_deps/
+
+# editor artifacts
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+
+# local notes and scratch
+*.log
+*.out
+*.dump
+*.trace
+*.yuv
+*.vcf
+Thumbs.db
+desktop.ini
+
+# launcher artifacts
+launcher/__pycache__/
+*.pyc
+__pycache__/
