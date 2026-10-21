@@ -62,12 +62,34 @@ else()
         target_compile_options(con_game_code_huge PRIVATE /bigobj /fp:precise ${CON_ARCH_FLAG} /GS- /W0)
         # The huge files that do compile in reasonable time get full optimization back; the worst ones do not.
         set(CON_HUGE_OPTIMIZED "" CACHE STRING "Huge generated files still compiled with /d2OptimizeHugeFunctions")
+        # The huge files whose C++ makes MSVC run out of compiler heap (C1002) even without /d2OptimizeHugeFunctions:
+        # compiled /Od (the guest code runs interpreted-like; a slow boot is better than no boot).
+        set(CON_HUGE_NOOPT "ps2___sce_dnas2_symbol11078_0x131cbc0.cpp" CACHE STRING "Huge generated files compiled /Od (C1002)")
         foreach(source IN LISTS CON_HUGE_SOURCES)
             get_filename_component(sourceName "${source}" NAME)
             if(sourceName IN_LIST CON_HUGE_OPTIMIZED)
                 set_source_files_properties("${source}" PROPERTIES COMPILE_OPTIONS "/d2OptimizeHugeFunctions")
             endif()
+            if(sourceName IN_LIST CON_HUGE_NOOPT)
+                set_source_files_properties("${source}" PROPERTIES COMPILE_OPTIONS "/Od")
+            endif()
         endforeach()
+    endif()
+
+    # Small generated files that still make MSVC run out of compiler heap (C1002) with
+    # /d2OptimizeHugeFunctions: a giant function fits a few instructions of C++ into a few KB.
+    set(CON_NOOPT_SOURCES "ConstructTextPass__10VIMaterialiR8VIRasterP7VIQWord_0x10cedf8.cpp"
+        CACHE STRING "Generated files under CON_HUGE_SOURCE_BYTES compiled /Od (C1002)")
+    set(CON_NOOPT_PATHS "")
+    foreach(name IN LISTS CON_NOOPT_SOURCES)
+        foreach(source IN LISTS CON_GENERATED_SOURCES)
+            if(source MATCHES "/${name}$")
+                list(APPEND CON_NOOPT_PATHS "${source}")
+            endif()
+        endforeach()
+    endforeach()
+    if(CON_NOOPT_PATHS)
+        set_source_files_properties(${CON_NOOPT_PATHS} PROPERTIES COMPILE_OPTIONS "/Od")
     endif()
 
     add_library(con_game_code STATIC ${CON_GENERATED_SOURCES})

@@ -98,4 +98,9 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
   não é afetado. Commit 5ca5c99.
 - E5.6 — Build do `con` disparado em background (log: extracted/build_con.log). Etapa 5 = aguardar,
   corrigir erros de compilação e compilar `pcsx2gs.dll` do thirdparty.
+- E5.7 — 1ª tentativa falhou com 3 erros (1.246 objetos OK): C3859/C1076 (PCH sob pressão de RAM,
+  `-j 8` em máquina de 16 GB) e C1002 em `ConstructTextPass` (52 KB, função monstruosa) e
+  `ps2___sce_dnas2_symbol11078` (5,6 MB). Correções: `CON_NOOPT_SOURCES` e `CON_HUGE_NOOPT`
+  (listas de fontes que compilam com `/Od`), `CON_HUGE_JOBS=1`, build com `-j 4`. Rebuild rodando
+  em background (mesmo log).
 
