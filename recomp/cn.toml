@@ -1,0 +1,33 @@
+# CoNRecomp recompilation config (Champions of Norrath, USA SLUS-20565).
+#
+# Format expected by the PS2Recomp fork's recompiler (runtime/ps2xRecomp). Values are derived from our own
+# analysis of the SLUS_205.65 ELF; nothing game-specific is copied from another port.
+#
+# Game facts this file encodes:
+#   - ELF: extracted from the user's disc (SYSTEM.CNF -> cdrom0:\SLUS_205.65), entry 0x00100008,
+#     SHA-256 9A60F13C5C316D619A288821CC9496CC61864106B7872B52EE141CAED3756FF0 (docs/GAME.md).
+#   - Function map from Ghidra (ExportPS2Functions.java): recomp/cn_functions.csv, 14,659 functions.
+
+[general]
+# tools/generate.py writes a staging copy of this file in build/ and points input at the extracted ELF.
+input = "../build/extracted/SLUS_205.65"
+output = "../generated"
+single_file_output = false
+output_worker_threads = 4
+# Ghidra function map (docs/GAME.md): merges functions the recompiler cannot reach by traversal
+# (called only through pointers/jump tables) into their owner. Ignored when the file is missing.
+ghidra_output = "cn_functions.csv"
+ghidra_map_merge = true
+# Runtime owns COP0/cache emulation; patching them here double-serves.
+patch_syscalls = false
+patch_cop0 = false
+patch_cache = false
+# The ELF is stripped: SDK functions (431 identified by ExportPS2Functions.java, sceGs*/scePad*/...) are
+# bound to runtime handlers by address at start-up (src/con/hle_bindings.cpp), not stubbed by name here.
+auto_stub_by_name = false
+# Tail jumps must go through the dispatch table, or replacing a function at run time (HLE, mods)
+# would miss those callers.
+direct_tail_calls = false
+# walk disable list: functions known to be unreachable/dead; empty for the first pass
+skip = []
+stubs = []

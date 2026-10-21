@@ -45,4 +45,22 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
 - E2.6 — Entrada do ELF para Etapa 4: entry 0x00100008 (do CSV, ENTRYPOINT 0x00100008, tamanho 576).
 - E2.7 — Listagem completa do disco (disc_listing.txt): primeira tentativa vazou por O(n²) num array PS;
   Read-Dir trocado para ArrayList; rodando em background.
+- E2.8 — Walker reescrito de forma iterativa (fila + visited) após exit 255 (suspeita: estouro de pilha por
+  recursão profunda). Resultado: 674 entradas. IRX em MODULES/ + MODULES2/ + BG/0MOD/: DNAS*.IMG
+  (autenticação online), MTAPMAN (multitap), ATAD, CDVDSTM, SIO2MAN/PADMAN, rede (SMAP/INET/DEV9/PPP),
+  USB (USBD/USBKB), áudio (SNDDRV/SDRDRV/LGAUD/MODMIDI). Dados: .LMP (376), .TEX (até 48 MB),
+  .GOB, .WAD, .VAT, .XML, .CNF. NETGUI2.ELF (5,6 MB) na raiz — hipótese: front-end de rede.
+- E2.9 — docs/GAME.md preenchido; commit 73998b2 (Etapa 2).
+
+## Etapa 3 — Análise (iniciada 2026-10-21)
+- E3.1 — Python 3.12.10 instalado (winget, autorizado pelo usuário). Path real:
+  C:\Users\Alessandro\AppData\Local\Programs\Python\Python312\python.exe (o PATH do shell do agente ainda
+  aponta para o stub da Microsoft Store — usar caminho completo por ora).
+- E3.2 — recomp/cn.toml criado no formato do fork (ghidra_map_merge=true, auto_stub_by_name=false,
+  direct_tail_calls=false, patch_*=false), derivado do SLUS-20565 (sem valores do Urban Reign).
+- E3.3 — Mapa validado: sceGsResetGraph,0x002D16E8 presente em cn_functions.csv com o mesmo endereço dos
+  stubs do draft → mapa do Ghidra e os 431 stubs apontam para as mesmas funções.
+- E3.4 — GameIndex do PCSX2: thirdparty/pcsx2/ é a seleção mínima do GS, sem o frontend/GameIndex.
+  Correções específicas do SLUS-20565: PENDENTE (docs/GAME.md) — virão do frontend do PCSX2/repositório
+  oficial quando necessário.
 

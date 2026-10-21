@@ -51,3 +51,21 @@ Fatos confirmados (evidência) vs. hipóteses marcadas.
 - RNG/semente da geração de fases. — pendente
 - Código de rede, multitap, formato do save. — pendente
 - Entrada do serial no GameIndex do PCSX2 (correções de GS, SLUS-20565). — pendente
+
+## Achados por strings (extracted/elf_strings.txt, tools/elf_strings.py)
+- Serial/GameIndex: `BASLUS-20565`, `/BASLUS-20565`, `BASLUS-20565EQONLINE`, `BASLUS-20470EQONLINE` →
+  **chave do GameIndex do PCSX2: BASLUS-20565** (+ variante EQONLINE); SLUS-20470 = segunda title ID no binário
+  (hipótese: boot "online" compartilhado; confirmar durante o M1/M2).
+- VU1: `EXPL_vu1skin_vsm_meshClipLoop__MAIN_LOOP`, `EXPL_vu1world_vsm_worldMeshClipLoop`,
+  `EXPL_vu1skin_vsm_refsqueezemeshClipLoop` → microprogramas de **skinning/mundo em VSM**; `PsIIlibvu0  2800`
+  (libs SN Systems).
+- Rede/online (M2 — stub necessário): `VIUDPSocket::SendTo/RecvFrom`, `Connecting to SOEGames.net...`,
+  `Sony Online Entertainment Credits:`, `soe_splash.tex`, `soe_splash_url.tex`, USOCKET_TYPE_UDP;
+  strings citam `cdrom0:\MODULES\DNAS255.IMG` (disco traz DNAS280/DNAS300 — verificar qual é carregado).
+- Save (M7): `MC_SaveGameBrowser`, `menu_savegame`, `icon.sys`, `WORDS.TXT read from memory card`,
+  `Writing session key (%ld) to memory card` (chave de sessão DNAS gravada no MC).
+- Engine/dados: `equipmnt.lmp`, `championsbreastplate+requiredclass1+dexteritybonus30` → formato "nome+atributos"
+  dos itens nos .LMP; `Material Palettes/Allocations: %d` (log do engine de materiais).
+- Entrada: entry 0x00100008 (boot exit stub "exit@0x00100248"); IRX citados no ELF: mcman.irx, mcserv.irx,
+  netcnf.irx, msifrpc.irx, eznetcnf.irx, MCMAN.IRX, MCSERV.IRX, PPP.IRX, PPPOE.IRX, SMAP.IRX, "unloading smap".
+- Áudio: `liblgaud version 1.09.004, built on Sep 15 2003` (build de 2003 do audio).
