@@ -76,4 +76,26 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
 - E4.3 — `tools/generate.py` escrito (Python): system.cnf → BOOT2 → extrai o ELF com iso_extract.py,
   confere SHA-256 (esperado 9A60F13C…56FF0), estagia `recomp/cn.toml` com caminhos absolutos e roda
   ps2_recomp. Rodando em background (extracted + generated/).
+- E4.4 — **Recompilação concluída com sucesso**: 90.898 arquivos .cpp em `generated/` (0,56 GB),
+  `register_functions.cpp` = 47,98 MB (/Od). 10.399 avisos "unhandled instruction" — todos em
+  regiões de dados/DNAS/strings (ex.: `__sce_dnas2_symbol11078` = blob cifrado), não abortaram nada.
+  Commit 14c5869 (generate.py) + documentos.
+
+## Etapa 5 — Primeiro build (iniciada 2026-10-21)
+- E5.1 — Infra genérica trazida do referência e adaptada (renomeada): `src/port/log.{cpp,h}` (namespace
+  `con::log`, env `CON_TRACE`) e `src/port/sha256.{cpp,h}`. MOTIVO: infra de log/cripto necessária ao
+  port; sem valores de jogo. (hang_dump/call_trace/native_profile têm endereços do Urban Reign — só serão
+  reescritos no M1 quando necessários.)
+- E5.2 — `src/main.cpp` (M1 mínimo): CPU check SSE4.1/AVX2 + `config.ini` (KEY=value → env) +
+  `PS2Runtime::initialize/loadELF/run`, sem hooks. Baseado no runner do `runtime/ps2xRuntime`.
+- E5.3 — `src/CMakeLists.txt` completo: `con_game_code` + `con_game_code_huge` (>900 KB → MSVC default
+  huge-functions, JOB_POOL `con_huge=2`), PCH do runtime, `register_functions.cpp` com `/Od`,
+  `pcsx2gs` alvo dependente (CON_PCSX2_GS=ON), `con_vu1_code` opcional para `generated/vu1`.
+- E5.4 — Configure OK: `build/port` (Ninja, 90k regras, 55 s de geração).
+- E5.5 — **Pasta `src/con` renomeada para `src/port`**: `CON` é nome reservado de dispositivo no Windows
+  (como PRN/AUX/NUL) — caminhos com esse componente falham no open() do git/MSYS e somem do
+  Get-ChildItem (sintoma: `fatal: could not open ... No such file or directory`). `con.exe` (arquivo)
+  não é afetado. Commit 5ca5c99.
+- E5.6 — Build do `con` disparado em background (log: extracted/build_con.log). Etapa 5 = aguardar,
+  corrigir erros de compilação e compilar `pcsx2gs.dll` do thirdparty.
 

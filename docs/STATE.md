@@ -3,9 +3,14 @@
 Data: 2026-10-21
 
 ## Etapa atual
-Etapa 4 — Primeira recompilação: `tools/generate.py` rodando em background (extrai SLUS_205.65 da ISO,
-confere SHA-256, roda ps2_recomp do fork com recomp/cn.toml + recomp/cn_functions.csv → generated/).
-Etapa 3 CONCLUÍDA (e1e84a5, + análises de strings). Etapa 2 CONCLUÍDA (73998b2). Etapa 1 CONCLUÍDA (665a9b1).
+Etapa 5 — Primeiro build: `con` compilando em background (90.898 .cpp; log extracted/build_con.log).
+Depois: corrigir erros, compilar `pcsx2gs.dll` do thirdparty, iniciar ciclo M1.
+Etapa 4 CONCLUÍDA (14c5869 + 90.898 .cpp gerados). Etapas 1–3 concluídas (665a9b1, 73998b2, e1e84a5, 5ca5c99).
+
+## Armadilha importante (windows)
+`CON` (e PRN/AUX/NUL/COM1-9/LPT1-9) é nome reservado de dispositivo: nenhuma pasta/arquivo pode se
+chamar `con` em qualquer componente do caminho — git/MSYS falham com "No such file or directory" e o
+PowerShell some com o diretório. A pasta de fontes do port chama `src/port`; o alvo continua `con.exe`.
 
 ## Concluído
 - Etapa 0 (Auditoria, parcial — docs/AUDIT.md ainda a escrever):
