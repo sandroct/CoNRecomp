@@ -3,9 +3,9 @@
 Data: 2026-10-21
 
 ## Etapa atual
-Etapa 2 (Extração e identificação) — em andamento: SYSTEM.CNF lido (SLUS_205.65 CONFIRMADO), ELF extraído e
-SHA-256 igual ao do Ghidra; listagem completa do disco rodando em background (disc_listing.txt).
-Teve O(n²) corrigido (ArrayList). Falta: IRX/vídeos do listing + docs/GAME.md complemento.
+Etapa 4 — Primeira recompilação: `tools/generate.py` rodando em background (extrai SLUS_205.65 da ISO,
+confere SHA-256, roda ps2_recomp do fork com recomp/cn.toml + recomp/cn_functions.csv → generated/).
+Etapa 3 CONCLUÍDA (e1e84a5, + análises de strings). Etapa 2 CONCLUÍDA (73998b2). Etapa 1 CONCLUÍDA (665a9b1).
 
 ## Concluído
 - Etapa 0 (Auditoria, parcial — docs/AUDIT.md ainda a escrever):

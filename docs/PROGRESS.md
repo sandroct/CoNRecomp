@@ -64,3 +64,16 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
   Correções específicas do SLUS-20565: PENDENTE (docs/GAME.md) — virão do frontend do PCSX2/repositório
   oficial quando necessário.
 
+## Etapa 4 — Primeira recompilação (iniciada 2026-10-21)
+- E4.1 — Ambiente: VS2022 BuildTools (MSVC 14.44), CMake 3.31 + Ninja OK. tools/win/vsenv.cmd ajustado
+  para BuildTools (fallback Community/Professional/Enterprise).
+- E4.2 — Recompilador do fork compilado do código: `cmake -S runtime -B build/recomp -DURBAN_BUILD_RECOMP=ON`
+  (a chave do fork é URBAN_BUILD_RECOMP, não CON_) → build target ps2_recomp:
+  `build/recomp/ps2xRecomp/ps2_recomp.exe`, copiado para `tools/ps2_recomp.exe` (gitignored).
+  Erros/de-risco anteriores: (a) target inexistente sem -DURBAN_BUILD_RECOMP=ON → corrigido;
+  (b) primeiro configure baixou deps via FetchContent (raylib 5.5, SDL3 3.4.10, imgui v1.92.7-docking,
+  rlImGui 5_5, rabbitizer, libdwarf, fmt, toml11) ~410 MB — normal.
+- E4.3 — `tools/generate.py` escrito (Python): system.cnf → BOOT2 → extrai o ELF com iso_extract.py,
+  confere SHA-256 (esperado 9A60F13C…56FF0), estagia `recomp/cn.toml` com caminhos absolutos e roda
+  ps2_recomp. Rodando em background (extracted + generated/).
+
