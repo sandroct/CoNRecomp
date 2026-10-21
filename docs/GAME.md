@@ -69,3 +69,12 @@ Fatos confirmados (evidência) vs. hipóteses marcadas.
 - Entrada: entry 0x00100008 (boot exit stub "exit@0x00100248"); IRX citados no ELF: mcman.irx, mcserv.irx,
   netcnf.irx, msifrpc.irx, eznetcnf.irx, MCMAN.IRX, MCSERV.IRX, PPP.IRX, PPPOE.IRX, SMAP.IRX, "unloading smap".
 - Áudio: `liblgaud version 1.09.004, built on Sep 15 2003` (build de 2003 do audio).
+
+## Funções do SDK identificadas (Etapa 3, base do HLE do M1)
+431 stubs nomeados por endereço (extracted/sdk_groups.txt, tools/stub_groups.py):
+- SIF/RPC (IOP): 52 · kernel EE (threads/dma/intc/sema): ~194 · libpad (+multitap): 29 · libmpeg: 25
+- libcdvd: 23 · libmc (memory card): 21 · libdma: 15 · GS (libgraph): 14 + misc 1 · VU/kernel: 41
+- libipu: 4 · libsdr: 4 · fileio IOP: 4 · s kernel EE: 2 · outros 3
+- + 430 untracked_stubs (ponteiros sem dono — cobertos pelo merge do mapa do Ghidra na geração).
+- [ghidra_export] do draft: function_count 14.659; csv_record_count 89.490; runtime_call 656 nomes.
+  Esses endereços são os candidatos a `replace` por handlers nativos no M1 (HLE por endereço).
