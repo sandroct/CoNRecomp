@@ -59,7 +59,7 @@ else()
     set_property(GLOBAL APPEND PROPERTY JOB_POOLS con_huge=${CON_HUGE_JOBS})
     set_property(TARGET con_game_code_huge PROPERTY JOB_POOL_COMPILE con_huge)
     if(MSVC)
-        target_compile_options(con_game_code_huge PRIVATE /bigobj /fp:precise ${CON_ARCH_FLAG} /GS- /W0)
+        target_compile_options(con_game_code_huge PRIVATE /bigobj /fp:precise ${CON_ARCH_FLAG} /GS- /W0 /Zm200)
         # The huge files that do compile in reasonable time get full optimization back; the worst ones do not.
         set(CON_HUGE_OPTIMIZED "" CACHE STRING "Huge generated files still compiled with /d2OptimizeHugeFunctions")
         # The huge files whose C++ makes MSVC run out of compiler heap (C1002) even without /d2OptimizeHugeFunctions:
@@ -102,7 +102,7 @@ else()
     # machine. MSVC then keeps its default huge-function handling (C4883 -> those functions stay /Od-like,
     # slower but correct); selective back-enablement can be done with CON_HUGE_OPTIMIZED per file.
     if(MSVC)
-        target_compile_options(con_game_code PRIVATE /bigobj /fp:precise ${CON_ARCH_FLAG} /GS- /W0 /MP $<$<CONFIG:RelWithDebInfo>:/Ob2>)
+        target_compile_options(con_game_code PRIVATE /bigobj /fp:precise ${CON_ARCH_FLAG} /GS- /W0 /Zm200 /MP $<$<CONFIG:RelWithDebInfo>:/Ob2>)
         # The one ~48 MB table initializer that runs once at startup: compiles in seconds without
         # PCH/optimizer, hours with them.
         set_source_files_properties("${CON_GENERATED_DIR}/register_functions.cpp" PROPERTIES
