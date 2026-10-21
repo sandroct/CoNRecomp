@@ -28,6 +28,7 @@ auto_stub_by_name = false
 # Tail jumps must go through the dispatch table, or replacing a function at run time (HLE, mods)
 # would miss those callers.
 direct_tail_calls = false
-# walk disable list: functions known to be unreachable/dead; empty for the first pass
-skip = []
+# Functions whose recompiled body is not guest code but data (the encrypted DNAS module): skipping them
+# keeps generated/ small and compilable. The disc boot never reaches them (offline play).
+skip = ["__sce_dnas2_symbol11078", "_sce_dnas2_symbol51"]
 stubs = []

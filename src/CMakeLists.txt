@@ -97,16 +97,12 @@ else()
     target_include_directories(con_game_code PUBLIC "${CON_GENERATED_DIR}")
     target_link_libraries(con_game_code PUBLIC ps2_runtime)
     set_target_properties(con_game_code PROPERTIES UNITY_BUILD OFF)
-    target_precompile_headers(con_game_code PRIVATE
-        "${CON_RUNTIME_INCLUDE}/ps2_runtime_macros.h"
-        "${CON_RUNTIME_INCLUDE}/ps2_runtime.h"
-        "${CON_GENERATED_DIR}/ps2_recompiled_functions.h"
-        "${CON_GENERATED_DIR}/ps2_recompiled_stubs.h"
-        "${CON_RUNTIME_INCLUDE}/ps2_syscalls.h"
-        "${CON_RUNTIME_INCLUDE}/ps2_stubs.h"
-    )
+    # NOTE (M1, 2026-10-21): no precompiled header and no /d2OptimizeHugeFunctions here on purpose. With them,
+    # single small generated files (a giant function) blew MSVC's compiler heap (C3859/C1002) on a 16 GB
+    # machine. MSVC then keeps its default huge-function handling (C4883 -> those functions stay /Od-like,
+    # slower but correct); selective back-enablement can be done with CON_HUGE_OPTIMIZED per file.
     if(MSVC)
-        target_compile_options(con_game_code PRIVATE /bigobj /fp:precise ${CON_ARCH_FLAG} /GS- /d2OptimizeHugeFunctions /W0 /MP $<$<CONFIG:RelWithDebInfo>:/Ob2>)
+        target_compile_options(con_game_code PRIVATE /bigobj /fp:precise ${CON_ARCH_FLAG} /GS- /W0 /MP $<$<CONFIG:RelWithDebInfo>:/Ob2>)
         # The one ~48 MB table initializer that runs once at startup: compiles in seconds without
         # PCH/optimizer, hours with them.
         set_source_files_properties("${CON_GENERATED_DIR}/register_functions.cpp" PROPERTIES
