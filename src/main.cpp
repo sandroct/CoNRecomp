@@ -83,7 +83,7 @@ namespace
             symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
             symbol->MaxNameLen = 255;
             DWORD64 displacement = 0;
-            const bool haveSymbol = SymFromAddr(process, frames[i], &displacement, symbol) != FALSE;
+            const bool haveSymbol = SymFromAddr(process, reinterpret_cast<DWORD64>(frames[i]), &displacement, symbol) != FALSE;
             std::fprintf(stderr, "[crash]   #%u %s+0x%llx\n", static_cast<unsigned>(i), haveSymbol ? symbol->Name : "?",
                          static_cast<unsigned long long>(displacement));
         }
