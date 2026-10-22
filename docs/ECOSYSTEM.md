@@ -29,6 +29,7 @@ nossa análise.
 | **Snowblind Archive Extractor** (RealNeco000) | forense de .TEX/.LMP (slices 128 KB, offset 0x810, VAGp) — ajuda a entender os arquivos; **não substitui** o parser deles p/ texto |
 | **DNAS bypass .pnach** (comunidade) | patch nativo no port (docs/ONLINE.md) |
 | **universal-ps2-recompiler** (SandstoneDev, PS2RC License 1.2) | kit de port para **PSP** com outro recompilador: **não usamos o engine**; valor = metodologia (skills de port/HLE, doutor de deps) — licença não-GPL exige cuidado |
+| **ps2-recomp-Agent-SKILL** (hkmodd, 40★) | skill de agente + base de conhecimento PS2Recomp (pipeline, syscalls/stubs, R5900, playbook, PCSX2-MCP) | **metodologia validada** (nosso STATE.md == o PS2_PROJECT_STATE.md deles; triage stubs ret0/ret1; overrides por CRC32) e referência de syscalls/SDK p/ o M1; clone em C:\Users\Alessandro\ps2-recomp-Agent-SKILL |
 | **ps2-recompilation-guide** (nate-santos) | guia de estratégia (out/2026): **parcialmente desatualizado** — afirma "nada jogável saiu do recomp", mas ignora a leva de ports recomp de out/2026 (Urban Reign 1.3.0, DBZ BT4, Bloody Roar 4, NBA Street) que já rodam jogos de varejo; utilidade = *checklist* de ferramentas (ps2dis#, PINE/PCSX2-MCP, parallel-gs, renderdoc, splat/objdiff) e de armadilhas (delay slots, float não-IEEE, ELF stripped, override por CRC32) |
 
 ## 4. O que já internalizamos do guia (checklist vs. nosso estado)
@@ -43,3 +44,13 @@ nossa análise.
    crédito) para o item 1 do docs/ONLINE.md.
 2. Testar o `champions-data` do Open-Champions nos nossos `.LMP`/`.GOB` (extração p/ tradução).
 3. Verificar se o netcode do CoN fala com o relay (ou precisa do Champions Reborn Server direto).
+
+## 6. Já colhido do ps2-recomp-Agent-SKILL (aplicado ao M1)
+- `game_overrides.h` do nosso runtime: `PS2_REGISTER_GAME_OVERRIDE(nome, ELF, entry, CRC32, apply)`
+  + `bindAddressHandler(runtime, addr, nome)` — override por jogo **sem tocar no runtime**.
+- **Cobertura dos nossos stubs: 431/431** (`tools/hle_coverage.py`): todos têm handler por nome em
+  `ps2_call_list.h` (658 handlers). HLE do M1 = tabela de endereços, já gerada
+  (`tools/gen_hle_bindings.py` → `src/port/hle_bindings.cpp`, CRC32 `0x7AA91374`).
+- Estratégia de triagem (ret0/ret1/reta0) documentada para os 430 `untracked_stubs` caso o boot trave.
+- Próximo: PCSX2-MCP (build custom do PCSX2 com DebugServer via MCP) para comparação A/B no M1–M3
+  (nossa missão já exige comparar com PCSX2) — estudar `resources/12-pcsx2-mcp-playbook.md` antes.
