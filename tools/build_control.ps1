@@ -9,13 +9,14 @@
 # interrompe um cl no meio da escrita -> nenhum .obj truncado). Nada e perdido: o Ninja e incremental.
 
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('Full', 'Pause', 'Resume', 'Status')]
+    [Parameter(Mandatory = $true)][ValidateSet('Full', 'Game', 'Pause', 'Resume', 'Status')]
     [string]$Mode,
     [int]$Jobs = 8
 )
 
 $bat = "$PSScriptRoot\..\extracted\run_build.bat"
 $vsenv = "$PSScriptRoot\win\vsenv.cmd"
+$booster = "$PSScriptRoot\boost_loop.ps1"
 
 function Stop-BuildClean {
     $ninja = Get-Process -Name ninja -ErrorAction SilentlyContinue
@@ -31,23 +32,47 @@ function Stop-BuildClean {
     Start-Sleep -Seconds 1
 }
 
+function Stop-Booster {
+    Get-Process -Name powershell -ErrorAction SilentlyContinue |
+        Where-Object { $_.CommandLine -like "*boost_loop*" } |
+        Stop-Process -Force -ErrorAction SilentlyContinue
+}
+
+function Start-Booster {
+    Stop-Booster
+    Start-Process -FilePath 'powershell.exe' -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $booster -WindowStyle Hidden
+}
+
+function Write-Bat([int]$jobs) {
+    $content = "@echo off`r`ncall `"$vsenv`" cmake --build C:\recomp\CoNRecomp\build\port --target con -- -j $jobs >> C:\recomp\CoNRecomp\extracted\build_con.log 2>&1`r`necho BUILD_EXIT=%ERRORLEVEL% >> C:\recomp\CoNRecomp\extracted\build_con.log`r`n"
+    [IO.File]::WriteAllText($bat, $content)
+}
+
 switch ($Mode) {
     'Pause' {
         Stop-BuildClean
+        Stop-Booster
         Write-Host "[build] PAUSADO - zero recursos usados. Retome com -Mode Resume."
     }
     'Full' {
         Stop-BuildClean
-        $content = "@echo off`r`ncall `"$vsenv`" cmake --build C:\recomp\CoNRecomp\build\port --target con -- -j $Jobs >> C:\recomp\CoNRecomp\extracted\build_con.log 2>&1`r`necho BUILD_EXIT=%ERRORLEVEL% >> C:\recomp\CoNRecomp\extracted\build_con.log`r`n"
-        [IO.File]::WriteAllText($bat, $content)
+        Write-Bat $Jobs
         $p = Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $bat -WindowStyle Hidden -PassThru
-        $p.PriorityClass = 'High'          # herda para os cl filhos: prioridade acima de tudo
-        Write-Host "[build] FULL: $Jobs jobs, prioridade Alta (PID $($p.Id)).~2x mais rapido."
+        Start-Booster
+        Write-Host "[build] FULL: $Jobs jobs + prioridade Alta (booster ligado)."
+    }
+    'Game' {
+        # Modo jogo: build CONTINUA em 6 jobs, prioridade normal (sem pause, sem booster).
+        Stop-BuildClean
+        Stop-Booster
+        Write-Bat 6
+        Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $bat -WindowStyle Hidden
+        Write-Host "[build] GAME: 6 jobs, prioridade normal - build continua, jogo corre solto."
     }
     'Resume' {
         Stop-BuildClean
-        $content = "@echo off`r`ncall `"$vsenv`" cmake --build C:\recomp\CoNRecomp\build\port --target con -- -j 6 >> C:\recomp\CoNRecomp\extracted\build_con.log 2>&1`r`necho BUILD_EXIT=%ERRORLEVEL% >> C:\recomp\CoNRecomp\extracted\build_con.log`r`n"
-        [IO.File]::WriteAllText($bat, $content)
+        Stop-Booster
+        Write-Bat 6
         Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $bat -WindowStyle Hidden
         Write-Host "[build] RESUME: 6 jobs, prioridade normal."
     }
