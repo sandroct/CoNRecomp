@@ -32,6 +32,11 @@ function Stop-BuildClean {
     Start-Sleep -Seconds 1
 }
 
+function Clear-WatchdogOff {
+    $marker = "$PSScriptRoot\..\extracted\WATCHDOG_OFF"
+    if (Test-Path $marker) { Remove-Item $marker -Force }
+}
+
 function Stop-Booster {
     Get-Process -Name powershell -ErrorAction SilentlyContinue |
         Where-Object { $_.CommandLine -like "*boost_loop*" } |
@@ -52,10 +57,12 @@ switch ($Mode) {
     'Pause' {
         Stop-BuildClean
         Stop-Booster
-        Write-Host "[build] PAUSADO - zero recursos usados. Retome com -Mode Resume."
+        New-Item -ItemType File -Path "$PSScriptRoot\..\extracted\WATCHDOG_OFF" -Force | Out-Null
+        Write-Host "[build] PAUSADO - zero recursos usados. Retome com -Mode Resume (o watchdog respeita a pausa)."
     }
     'Full' {
         Stop-BuildClean
+        Clear-WatchdogOff
         Write-Bat $Jobs
         $p = Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $bat -WindowStyle Hidden -PassThru
         Start-Booster
@@ -64,6 +71,7 @@ switch ($Mode) {
     'Game' {
         # Modo jogo: build CONTINUA em 6 jobs, prioridade normal (sem pause, sem booster).
         Stop-BuildClean
+        Clear-WatchdogOff
         Stop-Booster
         Write-Bat 6
         Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $bat -WindowStyle Hidden
@@ -71,6 +79,7 @@ switch ($Mode) {
     }
     'Resume' {
         Stop-BuildClean
+        Clear-WatchdogOff
         Stop-Booster
         Write-Bat 6
         Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $bat -WindowStyle Hidden
