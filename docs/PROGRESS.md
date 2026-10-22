@@ -64,6 +64,22 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
   Correções específicas do SLUS-20565: PENDENTE (docs/GAME.md) — virão do frontend do PCSX2/repositório
   oficial quando necessário.
 
+## Etapa 5 — link do con.exe (build distribuído com o PC do irmão, 2026-10-22)
+
+- **Metade A + metade B compiladas**: 90.886 `.obj` no disco (parte A nossa + parte B do irmão: 29.146 arquivos,
+  0 falhas, toolchain idêntico MSVC 14.44.35207). Fusão pelo `.ninja_log` do irmão (paths absolutos → relativos,
+  `tools/merge_ninja_log.py`).
+- **Problema**: o ninja descarta o `.ninja_log` quando reexecuta o CMake (re-glob) no início do build —
+  a fusão pelo log não sobreviveu. **Decisão**: caminho manual (sem ninja): gerar rsps, `lib.exe` por partes.
+- `LNK1248`: um `.lib` não passa de 4 GB → 90.886 objs (~16 GB de código) divididos em **16 partes**
+  (`extracted/parts/p0..p15.lib`, ~1,1 GB cada) que vão direto para o link (`tools/make_link.py`).
+- Libs auxiliares construídas: `con_game_code_huge.lib`, `ps2_runtime`, `ps2_iop`, `pcsx2_gs`, `pcsx2_gs_host`,
+  `pcsx2_fmt`, `rlImGui`, `imgui`, `raylib`, `SDL3`, ffmpeg.
+- Ferramentas novas: `tools/merge_ninja_log.py`, `tools/finalize_build.py`, `tools/fusao_check.py`,
+  `tools/make_link.py`, `tools/fuse_final.ps1`, `tools/build_control.ps1` (Full/Game/Pause/Resume),
+  `tools/watchdog.ps1` (tarefa agendada), `tools/split_targets.py`, `tools/build_subset.py`.
+- **Pendente**: terminar as 16 partes (~1h) → rodar o link (`extracted/run_final_link.bat`) → `con.exe`.
+
 ## Etapa 4 — Primeira recompilação (iniciada 2026-10-21)
 - E4.1 — Ambiente: VS2022 BuildTools (MSVC 14.44), CMake 3.31 + Ninja OK. tools/win/vsenv.cmd ajustado
   para BuildTools (fallback Community/Professional/Enterprise).

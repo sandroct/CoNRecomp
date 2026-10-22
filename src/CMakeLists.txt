@@ -17,7 +17,7 @@ if(NOT EXISTS "${CON_GENERATED_DIR}/register_functions.cpp")
         "Put your own disc image in game/ and run: python build.py generate")
 endif()
 
-file(GLOB CON_GENERATED_SOURCES CONFIGURE_DEPENDS "${CON_GENERATED_DIR}/*.cpp")
+file(GLOB CON_GENERATED_SOURCES "${CON_GENERATED_DIR}/*.cpp")
 
 set(CON_HOST_SOURCES
     main.cpp
@@ -79,8 +79,8 @@ else()
 
     # Small generated files that still make MSVC run out of compiler heap (C1002) with
     # /d2OptimizeHugeFunctions: a giant function fits a few instructions of C++ into a few KB.
-    set(CON_NOOPT_SOURCES "ConstructTextPass__10VIMaterialiR8VIRasterP7VIQWord_0x10cedf8.cpp;entry_0010e310_0x10e310.cpp"
-        CACHE STRING "Generated files under CON_HUGE_SOURCE_BYTES compiled /Od (C1002)")
+    set(CON_NOOPT_SOURCES "ConstructTextPass__10VIMaterialiR8VIRasterP7VIQWord_0x10cedf8.cpp;entry_0010e310_0x10e310.cpp;entry_01139e94_0x1139e94.cpp;entry_01139de8_0x1139de8.cpp;entry_01139d80_0x1139d80.cpp;entry_01139dd0_0x1139dd0.cpp;entry_01139e98_0x1139e98.cpp;entry_01139df4_0x1139df4.cpp;entry_01139df0_0x1139df0.cpp;entry_01139dfc_0x1139dfc.cpp;entry_01140c58_0x1140c58.cpp;entry_01140dc8_0x1140dc8.cpp;entry_01140dec_0x1140dec.cpp;entry_01140d18_0x1140d18.cpp;entry_01140bbc_0x1140bbc.cpp;entry_01140c5c_0x1140c5c.cpp;entry_01140df8_0x1140df8.cpp;entry_01140cf0_0x1140cf0.cpp"
+        CACHE STRING "Generated files under CON_HUGE_SOURCE_BYTES compiled /Od (C1002/C1060)")
     set(CON_NOOPT_PATHS "")
     foreach(name IN LISTS CON_NOOPT_SOURCES)
         foreach(source IN LISTS CON_GENERATED_SOURCES)
@@ -154,7 +154,7 @@ endif()
 
 # VU1 microcode compiled ahead of time: capture the code images with PS2X_VU1_CAPTURE, then run vu1_recomp
 # (configure with -DCON_BUILD_TOOLS=ON) into generated/vu1. Images not compiled stay interpreted.
-file(GLOB CON_VU1_SOURCES CONFIGURE_DEPENDS "${CON_GENERATED_DIR}/vu1/*.cpp")
+file(GLOB CON_VU1_SOURCES "${CON_GENERATED_DIR}/vu1/*.cpp")
 if(CON_VU1_SOURCES)
     add_library(con_vu1_code STATIC ${CON_VU1_SOURCES})
     target_include_directories(con_vu1_code PRIVATE "${CMAKE_SOURCE_DIR}/runtime/ps2xRuntime/src/lib/vu")
