@@ -1,0 +1,152 @@
+=====================================================================
+ CoNRecomp — HANDOFF / TRANSFERÊNCIA DE CONHECIMENTO
+ Champions of Norrath: Realms of EverQuest (PS2 USA, SLUS-20565)
+ Port nativo para Windows pelo método do urban-reign-recomp
+=====================================================================
+Criado em: 2026-10-21 ~ 19:00 (horário do PC)
+Propósito: se o agente/modelo mudar (tokens, nova sessão), ESTE arquivo
++ os docs do projeto permitem continuar sem perder nada.
+
+---------------------------------------------------------------------
+1. O PROJETO
+---------------------------------------------------------------------
+- Port do jogo de PS2 "Champions of Norrath" (USA) para Windows, via
+  PS2Recomp (tradução do binário MIPS para C++) + runtime (EE/VU/GS/IOP)
+  + GS do PCSX2. Método copiado/adaptado do projeto urban-reign-recomp
+  (GPL-3.0), NADA específico do Urban Reign foi copiado.
+- Diretório canônico: C:\recomp\CoNRecomp  (repo git, branch main)
+- Usuário: Alessandro ("meu amigo" do projeto). Fala português.
+
+---------------------------------------------------------------------
+2. ESTADO ATUAL (verificar antes de confiar — pode ter mudado)
+---------------------------------------------------------------------
+- Etapa: 5 de 12 (primeiro build). Etapas 0-4 CONCLUÍDAS.
+- Recompilação do jogo: CONCLUÍDA — 90.898 arquivos .cpp em
+  C:\recomp\CoNRecomp\generated (0,56 GB).
+- Compilação do con.exe: EM ANDAMENTO.
+  * Progresso na última medição: 13.419 / 90.902 objetos (14,8%).
+  * 6 compiladores (cl.exe) ativos; RAM ~16 GB; page file 32 GB.
+  * Comando de status (usar sempre):
+      python C:\recomp\CoNRecomp\tools\build_status.py
+    (python real: C:\Users\Alessandro\AppData\Local\Programs\Python\Python312\python.exe
+     porque o PATH do shell ainda aponta para o stub do WindowsApps)
+  * Log do build: C:\recomp\CoNRecomp\extracted\build_con.log
+  * O build roda DESTACADO (Start-Process) via
+    C:\recomp\CoNRecomp\extracted\run_build.bat — sobrevive a restart do
+    agente. Se morrer, re-executar esse .bat (Ninja é incremental).
+  * Se o build parar com erro (C1060/C1002 = heap do MSVC): colocar o
+    arquivo na lista CON_NOOPT_SOURCES / CON_NOOPT_PATTERNS em
+    src/CMakeLists.txt (compila /Od só aquele arquivo) e re-disparar.
+- M1 (rodar o jogo) já preparado:
+  * src/main.cpp (CPU check + config.ini + PS2Runtime::initialize/loadELF/run)
+  * src/port/hle_bindings.cpp: 431/431 stubs do SDK ligados por endereço
+    aos handlers do runtime (bindAddressHandler), CRC32 do ELF
+    0x7AA91374, entry 0x00100008.
+  * Ferramentas: tools/hle_coverage.py, tools/gen_hle_bindings.py.
+
+---------------------------------------------------------------------
+3. DOCUMENTOS PARA LER (nesta ordem)
+---------------------------------------------------------------------
+C:\recomp\CoNRecomp\docs\STATE.md      -> bússola: etapa atual, próximos passos
+C:\recomp\CoNRecomp\docs\PROGRESS.md   -> log completo (tudo que foi feito)
+C:\recomp\CoNRecomp\docs\AUDIT.md      -> auditoria de ambiente/materiais
+C:\recomp\CoNRecomp\docs\GAME.md       -> fatos do jogo (disco, SDK, idiomas)
+C:\recomp\CoNRecomp\docs\ONLINE.md     -> plano do modo LAN com o irmão
+C:\recomp\CoNRecomp\docs\L10N.md       -> plano da tradução PT-BR
+C:\recomp\CoNRecomp\docs\ECOSYSTEM.md  -> projetos da comunidade e o que usar
+
+---------------------------------------------------------------------
+4. FATOS-CHAVE (evidência, não hipótese)
+---------------------------------------------------------------------
+- ISO: C:\PROJETOS\Champions Recomp for PC - PS2RECOMP\Ferramentas Úteis\
+  pcsx2-v2.9.131-windows-x64-Qt\ISO E BIOS\Champions of Norrath (USA).iso
+- SYSTEM.CNF: BOOT2 = cdrom0:\SLUS_205.65;1 ; VER 1.02 ; NTSC
+- ELF extraído: C:\recomp\CoNRecomp\build\extracted\SLUS_205.65
+  (9.249.659 bytes; SHA-256 9A60F13C5C316D619A288821CC9496CC61864106B7872B52EE141CAED3756FF0)
+  É O MESMO ELF analisado no Ghidra (C:\Users\Alessandro\Decomp\slus-20565\game.elf).
+- Mapa de funções: recomp/cn_functions.csv (14.659 funções) +
+  recomp/cn_config_ghidra_draft.toml (431 stubs do SDK + 430 untracked_stubs).
+- Config da recompilação: recomp/cn.toml (formato do fork; skip dos dnas2).
+- Motor: tabela de idiomas no ELF inclui PT (us uk fr de it nl pt sp en);
+  disco só tem pacotes EN/FR/GE/SP.
+- Segundo ELF no disco: NTGUI2.ELF (5,6 MB; front-end de rede — hipótese).
+- DNAS: blob cifrado no ELF; 2 funções monstruosas foram stubeadas
+  (docs/GAME.md). Rede: strings UDP/SOE no binário.
+
+---------------------------------------------------------------------
+5. PRÓXIMOS PASSOS (quando o build terminar)
+---------------------------------------------------------------------
+1. Link do con.exe em build/port/bin. Corrigir erros de link se houver.
+2. M1: rodar build/port/bin/con.exe build/extracted/SLUS_205.65 (ou
+   copiar o ELF para junto) e ler o log do runtime; ciclo
+   implementar->compilar->rodar->ler log->corrigir.
+3. Compilar pcsx2gs.dll do thirdparty (alvo pcsx2gs) — Etapa 5.
+4. Etapas 6+: M2 (IOP/IRX/pad/MC), M3 (GS + GameIndex BASLUS-20565),
+   M4 (áudio/VU1), M5 (vídeos), M6 (multitap 2-4 jogadores LOCAL),
+   M7 (save/determinismo), M8 (autotest vs PCSX2).
+5. Online LAN: ponte SMAP->UDP (portar do runtime do dbz-bt4-recomp),
+   DNS override, DNAS bypass, Champions Reborn Server (docs/ONLINE.md).
+6. Tradução PT-BR: doc completo em docs/L10N.md.
+
+---------------------------------------------------------------------
+6. REGRAS INEGOCIÁVEIS (do dono do projeto)
+---------------------------------------------------------------------
+- NUNCA commitar/distribuir: ISO, ELF, IRX, assets, código gerado,
+  urban.exe. .gitignore já cobre (game/, extracted/, generated/, build/,
+  bench/, textures/, shadercache*/, *.iso/*.bin/*.exe/*.dll).
+- Nada específico do Urban Reign (hashes, urban.toml, hooks, nomes).
+- Não baixar ISO/BIOS nem linkar para isso. Usuário tem os seus.
+- Não afirmar nada sobre o jogo sem evidência; hipótese marcada "hipótese".
+- Sem ações destrutivas fora do projeto; sem instalar software sem avisar.
+- Parar e avisar o usuário nos casos de "QUANDO PARAR" (ver missão
+  original na conversa/estado): ferramenta faltando, decisão irreversível,
+  ELF diferente, risco legal, 3º erro persistente, fim de cada marco.
+- Commits em português, estilo: "Etapa N: ...".
+
+---------------------------------------------------------------------
+7. ARMADILHAS CONHECIDAS (já sofridas — não repetir)
+---------------------------------------------------------------------
+- "CON" é nome reservado do Windows: NENHUMA pasta no caminho pode se
+  chamar "con" (git falha com "No such file or directory", PowerShell
+  perde o diretório). Pasta do port: src/port.
+- MSVC em máquina de 16 GB: sem PCH e sem /d2OptimizeHugeFunctions no
+  con_game_code (C1060/C1002 = heap); correção por arquivo (listas
+  CON_NOOPT_*). PDB corrompido por kill: apagar o .pdb (não invalida .obj).
+- Servidor reinicia e mata processos filhos: build destacado + re-disparo.
+- Python: usar caminho completo (stub WindowsApps vem antes no PATH).
+- VS2022: só BuildTools (vsenv.cmd ajustado para isso).
+
+---------------------------------------------------------------------
+8. RECURSOS/JANELAS DE PESQUISA (clonados fora do repo)
+---------------------------------------------------------------------
+- C:\Users\Alessandro\dbz-bt4-recomp        (port recomp com online: PS2X_NET_*)
+- C:\Users\Alessandro\open-champions-godot  (parser GOB/LMP + protocolo)
+- C:\Users\Alessandro\ps2-recomp-Agent-SKILL (base de conhecimento PS2Recomp)
+- Referência-fonte do método:
+  C:\PROJETOS\Champions Recomp for PC - PS2RECOMP\Ferramentas Úteis\urban-reign-recomp-main
+- ran-j/PS2Recomp: C:\Users\Alessandro\PS2Recomp
+- Ghidra 12.1.4 + ghidra-emotionengine-reloaded: instalados (mapa feito com eles).
+- REA (MCP): abrir binários com provider_id "ghidra" (pwntools é Linux-only).
+
+---------------------------------------------------------------------
+9. COMANDOS ÚTEIS
+---------------------------------------------------------------------
+- Status do build:
+  python C:\recomp\CoNRecomp\tools\build_status.py
+- Re-disparar build (se morrer):
+  Start-Process cmd '/c C:\recomp\CoNRecomp\extracted\run_build.bat' -WindowStyle Hidden
+- Compilar o recompilador (se precisar regerar o código do jogo):
+  tools/win/vsenv.cmd cmake -S runtime -B build/recomp -DURBAN_BUILD_RECOMP=ON
+  tools/win/vsenv.cmd cmake --build build/recomp --target ps2_recomp
+- Gerar código do jogo (regulated; precisa da ISO):
+  python tools/generate.py --iso <caminho da ISO>
+- Git: C:\recomp\CoNRecomp (branch main; ver git log para o histórico).
+
+---------------------------------------------------------------------
+10. PARA O NOVO AGENTO
+---------------------------------------------------------------------
+Leia docs/STATE.md e docs/PROGRESS.md antes de qualquer ação. Rode o
+build_status.py para saber o ponto exato. Continue a missão original
+(Etapas 5-12 / M1-M8) no mesmo estilo:autônomo, commits por etapa,
+atualizar STATE/PROGRESS, parar nos "QUANDO PARAR".
+Boa sorte — e bom jogo! :)
