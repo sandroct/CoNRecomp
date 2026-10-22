@@ -32,14 +32,23 @@ nossa análise.
 | **ps2-recomp-Agent-SKILL** (hkmodd, 40★) | skill de agente + base de conhecimento PS2Recomp (pipeline, syscalls/stubs, R5900, playbook, PCSX2-MCP) | **metodologia validada** (nosso STATE.md == o PS2_PROJECT_STATE.md deles; triage stubs ret0/ret1; overrides por CRC32) e referência de syscalls/SDK p/ o M1; clone em the hkmodd/ps2-recomp-Agent-SKILL repository |
 | **ps2-recompilation-guide** (nate-santos) | guia de estratégia (out/2026): **parcialmente desatualizado** — afirma "nada jogável saiu do recomp", mas ignora a leva de ports recomp de out/2026 (Urban Reign 1.3.0, DBZ BT4, Bloody Roar 4, NBA Street) que já rodam jogos de varejo; utilidade = *checklist* de ferramentas (ps2dis#, PINE/PCSX2-MCP, parallel-gs, renderdoc, splat/objdiff) e de armadilhas (delay slots, float não-IEEE, ELF stripped, override por CRC32) |
 
-## 4. XERJ — indexador de código para agentes (instalado 2026-10-21)
+## 4. Referências de hardware e documentação
+- **ps2tek** (psi-rockin.github.io/ps2tek) — a referência definitiva do hardware do PS2 (mapas de
+  memória, EE/COP0/COP1, GIF/GS, DMAC, VIF, VU, IPU, SIF, IOP, BIOS). É a fonte que os devs do PCSX2
+  usam. **Indexada no XERJ** (prefixo `ps2tek`, cópia local em `C:\Users\Alessandro\refs\ps2tek\`).
+  Uso no projeto: quando o log do runtime acusar um registro/instrução (M1–M4), consultar o índice
+  antes de abrir a página.
+- **n64recomp/xenonrecomp** — a linhagem do método (citada pelo guia de estratégia).
+
+## 5. XERJ — indexador de código para agentes (instalado 2026-10-21)
 - O que é: motor de busca "AI-native" (Rust, Apache-2.0, binário único) que indexa código (tree-sitter)
   e documentos; consulta por HTTP (:9200, compatível Elasticsearch) — o agente **pergunta ao índice**
   em vez de ler arquivos inteiros (economia tokens de contexto).
 - Instalado em: `C:\Users\Alessandro\bin\xerj\xerj-1.0.0-rc.97-x86_64-pc-windows-msvc\xerj.exe`
   (hash do release verificado; nó local roda destacado com `--insecure`).
 - Corpora indexados: **dbz-bt4-recomp** (76 arquivos de código — onde está a implementação do
-  `PS2X_NET_*`), **nosso `runtime/`** (prefixo `conrt`), **ps2-recomp-Agent-SKILL** (prefixo `skill`).
+  `PS2X_NET_*`), **nosso `runtime/`** (prefixo `conrt`), **ps2-recomp-Agent-SKILL** (prefixo `skill`),
+  **ps2tek** (prefixo `ps2tek` — hardware do PS2).
 - Uso: `xerj search "<frase>"` (busca lexical com `defs` AST) e `xerj def <símbolo>` (vai para a
   definição). Exemplo que já rendeu: *"PS2X_NET_RELAY netplay relay"* achou
   `patches/bt3recomp-bt4mod-windows.patch` com a implementação completa do relay.
