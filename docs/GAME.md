@@ -43,6 +43,16 @@ Fatos confirmados (evidência) vs. hipóteses marcadas.
 - Vídeo/IPU: nenhum arquivo de vídeo óbvio (sem .PSS/.IPU na raiz do disco) — a confirmar: os .VAT podem
   conter streams.
 
+## Acesso a disco pelo ELF (M2 — caminhos fixos no binário)
+Todas as referências `cdrom0:\` (14 strings) no ELF:
+- `cdrom0:\SLUS_205.65;1` (o próprio boot) e `cdrom0:\NTGUI2.ELF;1` (**segundo executável carregado — GUI de rede**)
+- `cdrom0:\MODULES\%s;1`, `cdrom0:\MODULES2\%s;1`, `cdrom0:\BG\0MOD\%s;1`, `cdrom0:\bg\0mod\%s;1` (IRX por nome montado)
+- `cdrom0:\MODULES\DNAS255.IMG;1` e `cdrom0:\BG\0MOD\DNAS280.IMG;1` (autenticação; disco traz DNAS280/300 — **strings
+  podem ser de build antiga; conferir no M2**)
+- `cdrom0:\CONF\NET\DIAL_CXT.CNF`, `DIAL_SPD.CNF`, `CONF\NETICON\JAPANESE\*`, `MODULES\ICON.SYS`, `MODULES\SYS_NET.ICO`
+- `cdrom0:\%s;1` (genérico) → dados de jogo (.LMP/.TEX/.VAT) provavelmente lidos por LBA/fileio bruto ou por esse
+  genérico com nome montado — a confirmar no M1/M2 pelos logs de IOP RPC.
+
 ## A fazer (Etapa 3)
 - Funções do SDK por assinatura (libdma, libgraph, libpad, libmtap, libsdr, libcdvd, libmc, libipu, libmpeg...)
   — cross-reference com Urban Reign (SDK 2.8) e SotC (SDK 3.0, com símbolos).
