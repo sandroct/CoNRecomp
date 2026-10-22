@@ -1,5 +1,7 @@
 # CoNRecomp
 
+![CoNRecomp — Champions of Norrath native port](docs/assets/banner.svg)
+
 **Champions of Norrath: Realms of EverQuest** (PlayStation 2, EUA — **SLUS-20565**) como um programa
 nativo de Windows, via recompilação estática antecipada.
 
