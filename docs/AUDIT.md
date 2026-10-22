@@ -6,12 +6,12 @@ Data: 2026-10-21 (consolidada ao fim da Etapa 1; itens pendentes marcados).
 
 | item | caminho | estado |
 |---|---|---|
-| ISO Champions of Norrath (USA) | `C:\PROJETOS\Champions Recomp for PC - PS2RECOMP\Ferramentas Úteis\pcsx2-v2.9.131-windows-x64-Qt\ISO E BIOS\Champions of Norrath (USA).iso` | 7,75 GB; SYSTEM.CNF lido; ELF extraído (SHA-256 bate com o do Ghidra) |
-| Referência-fonte (urban-reign-recomp) | `C:\PROJETOS\Champions Recomp for PC - PS2RECOMP\Ferramentas Úteis\urban-reign-recomp-main` | lido; inventário em COPIED_FROM_REFERENCE.md |
-| ran-j/PS2Recomp | `C:\Users\Alessandro\PS2Recomp` | usado para (a) CSV do Ghidra (`configs\norrath_functions`, 14.659 funções) e (b) verificação do formato do config `norrath_config.toml` |
-| ELF analisado no Ghidra | `C:\Users\Alessandro\Decomp\slus-20565\game.elf` | 9.249.659 B; SHA-256 `9A60F13C…56FF0` (idêntico ao extraído) |
+| ISO Champions of Norrath (USA) | `your own Champions of Norrath (USA) disc image` | 7,75 GB; SYSTEM.CNF lido; ELF extraído (SHA-256 bate com o do Ghidra) |
+| Referência-fonte (urban-reign-recomp) | `the urban-reign-recomp source tree (GPL-3.0)` | lido; inventário em COPIED_FROM_REFERENCE.md |
+| ran-j/PS2Recomp | `your ran-j/PS2Recomp clone` | usado para (a) CSV do Ghidra (`configs\norrath_functions`, 14.659 funções) e (b) verificação do formato do config `norrath_config.toml` |
+| ELF analisado no Ghidra | `your Ghidra analysis of the SLUS-20565 ELF\game.elf` | 9.249.659 B; SHA-256 `9A60F13C…56FF0` (idêntico ao extraído) |
 | Release UrbanReignPC-1.3.0 | `...\Ferramentas Úteis\UrbanReignPC-1.3.0` | só referência; NADA copiado (urban.exe/DLLs/mod/texturas) |
-| cópia em cn-recomp (antiga) | `C:\Users\Alessandro\cn-recomp` | obsoleta; projeto canônico é `C:\recomp\CoNRecomp` |
+| cópia em cn-recomp (antiga) | `obsolete copies folder (not used)` | obsoleta; projeto canônico é `<this repository>` |
 
 ## 2. norrath_config.toml / norrath_functions.csv (formato e contagens)
 
@@ -34,7 +34,7 @@ Data: 2026-10-21 (consolidada ao fim da Etapa 1; itens pendentes marcados).
 |---|---|
 | VS2022 C++ (cl/MSVC) | BuildTools 19.44.35229 em `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools` — OK (sem Community/Professional) |
 | CMake + Ninja | 3.31 + Ninja inclusos no BuildTools; usados via `tools/win/vsenv.cmd` (ajustado p/ BuildTools) |
-| Python | **instalado 3.12.10** (winget, autorizado). Caminho real: `C:\Users\Alessandro\AppData\Local\Programs\Python\Python312\python.exe` (o stub do WindowsApps ainda vem antes no PATH do shell do agente) |
+| Python | **instalado 3.12.10** (winget, autorizado). Caminho real: `python (3.10+)` (o stub do WindowsApps ainda vem antes no PATH do shell do agente) |
 | GPU DX11 | GPU do usuário assume DX11 (a GS do PCSX2 usa D3D11); não verificado por API — hipótese OK para o M1 |
 | Ghidra 12.1.4 + ghidra-emotionengine-reloaded v2.1.38 | já usado para gerar o CSV (JDK 27 funcionou; guia pedia 21 — sem bloqueio até agora) |
 | RAM | ~16 GB — calibrou o build: sem PCH, sem `/d2OptimizeHugeFunctions` no lib normal, huge com JOB_POOL 1, `-j 4` (docs/PROGRESS.md E5.7) |

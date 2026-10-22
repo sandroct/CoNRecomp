@@ -13,7 +13,7 @@ Fatos confirmados (evidência) vs. hipóteses marcadas.
   - tamanho: 9.249.659 bytes
   - SHA-256: `9A60F13C5C316D619A288821CC9496CC61864106B7872B52EE141CAED3756FF0`
   - entry point: 0x00100008 (do mapa de funções, ENTRYPOINT)
-  - **Igual por SHA-256 ao ELF analisado no Ghidra** (`C:\Users\Alessandro\Decomp\slus-20565\game.elf`) → o
+  - **Igual por SHA-256 ao ELF analisado no Ghidra** (`your Ghidra analysis of the SLUS-20565 ELF\game.elf`) → o
     mapa `recomp/cn_functions.csv` (14.659 funções, 431 stubs) gerado por `ExportPS2Functions.java` é válido
     para este disco.
 

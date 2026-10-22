@@ -18,7 +18,7 @@ PowerShell some com o diretório. A pasta de fontes do port chama `src/port`; o 
     commit `ac9efa0` 2026-10-01) com IOP/SIF, SPU2, GS do PCSX2, IPU (AC5, Apache-2.0), VU1 AOT (vu1_recomp).
     Hipótese "usar o runtime/ do referência" CONFIRMADA.
 - Etapa 1 (CONCLUÍDA, commit 665a9b1):
-  - Projeto criado em C:\recomp\CoNRecomp.
+  - Projeto criado em <this repository>.
   - .gitignore criado ANTES de tudo (regra nº 1): game/, extracted/, build/, bench/, generated? (ver abaixo),
     textures/, mods/, shadercache*/, *.iso/*.bin/*.exe/*.dll.
   - Copiado do referência (só genérico): runtime/ (299 arquivos), thirdparty/ (369 — directx-headers, pcsx2,
@@ -58,10 +58,10 @@ PowerShell some com o diretório. A pasta de fontes do port chama `src/port`; o 
 4. Etapa 4: recomp/cn.toml formato do fork; tools/generate.py adaptado; primeira geração (precisa Python + ps2_recomp.exe).
 
 ## Comandos úteis
-- cd C:\recomp\CoNRecomp
+- cd <this repository>
 - python build.py                  (menu)
 - python build.py generate
 - python build.py build
-- ISO referência: C:\PROJETOS\Champions Recomp for PC - PS2RECOMP\Ferramentas Úteis\pcsx2-v2.9.131-windows-x64-Qt\ISO E BIOS\Champions of Norrath (USA).iso
-- ELF analisado no Ghidra: C:\Users\Alessandro\Decomp\slus-20565\game.elf (entry 0x00100008 — verificar igualdade na Etapa 2)
-- Referência-fonte: C:\PROJETOS\Champions Recomp for PC - PS2RECOMP\Ferramentas Úteis\urban-reign-recomp-main
+- ISO referência: your own Champions of Norrath (USA) disc image
+- ELF analisado no Ghidra: your Ghidra analysis of the SLUS-20565 ELF\game.elf (entry 0x00100008 — verificar igualdade na Etapa 2)
+- Referência-fonte: the urban-reign-recomp source tree (GPL-3.0)

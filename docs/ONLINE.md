@@ -15,7 +15,7 @@ port forwarding ou servidores oficiais (a SOE não existe mais).
    LAN). Rede do jogo: `SCE/Ethernet (Network Adaptor)`, IP/DNS automáticos.
 4. **Open-Champions** (projeto irmão, MIT): reconstruiu o protocolo de rede do motor em C++
    (codec/sessão/tick, `champions-netwire`) — referência válida do protocolo; e o parser
-   `champions-data` (GOB/LMP). Repositório clonado em `C:\Users\Alessandro\open-champions-godot`.
+   `champions-data` (GOB/LMP). Repositório clonado em `the Open-Champions/open-champions-godot repository (MIT)`.
 5. **PSRewired** (psrewired.com): serviço que rehospeda tráfego SOE (alternativa pública ao server
    próprio).
 

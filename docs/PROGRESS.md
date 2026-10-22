@@ -13,7 +13,7 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
   (16 .py limp + 7 .py urban-espec + autotest/3 + ghidra/1 + status/1 + win/4).
 - AUD 0.3 — Grep "(?i)urban" em tools/*.py e subpastas: 14 arquivos com conteúdo urban-específico identificado
   e EXCLUÍDO da cópia (listado em docs/STATE.md).
-- C1.1 — Criado C:\recomp\CoNRecomp com .gitignore PRIMEIRO (regra nº 1). Pastas: docs, game, recomp, tools,
+- C1.1 — Criado <this repository> com .gitignore PRIMEIRO (regra nº 1). Pastas: docs, game, recomp, tools,
   src\con, src\res, extracted, bench.
 - C1.2 — copiar runtime/ → runtime/: 299 arq, 3,93 MB (robocopy /E). MOTIVO: runtime genérico do PS2Recomp.
 - C1.3 — copiar thirdparty/ → thirdparty/: 369 arq, 13,13 MB. MOTIVO: GS do PCSX2 a ser compilada daqui
@@ -40,7 +40,7 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
   Hipótese SLUS_205.65 CONFIRMADA por leitura direta do disco.
 - E2.4 — ELF extraído: `extracted/SLUS_205.65`, 9.249.659 bytes, SHA-256
   `9A60F13C5C316D619A288821CC9496CC61864106B7872B52EE141CAED3756FF0`.
-- E2.5 — Comparação com `C:\Users\Alessandro\Decomp\slus-20565\game.elf`: SHA-256 IDÊNTICO. É o mesmo ELF
+- E2.5 — Comparação com `your Ghidra analysis of the SLUS-20565 ELF\game.elf`: SHA-256 IDÊNTICO. É o mesmo ELF
   analisado no Ghidra → o mapa `recomp/cn_functions.csv` (14.659 funções) continua válido.
 - E2.6 — Entrada do ELF para Etapa 4: entry 0x00100008 (do CSV, ENTRYPOINT 0x00100008, tamanho 576).
 - E2.7 — Listagem completa do disco (disc_listing.txt): primeira tentativa vazou por O(n²) num array PS;
@@ -54,7 +54,7 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
 
 ## Etapa 3 — Análise (iniciada 2026-10-21)
 - E3.1 — Python 3.12.10 instalado (winget, autorizado pelo usuário). Path real:
-  C:\Users\Alessandro\AppData\Local\Programs\Python\Python312\python.exe (o PATH do shell do agente ainda
+  python (3.10+) (o PATH do shell do agente ainda
   aponta para o stub da Microsoft Store — usar caminho completo por ora).
 - E3.2 — recomp/cn.toml criado no formato do fork (ghidra_map_merge=true, auto_stub_by_name=false,
   direct_tail_calls=false, patch_*=false), derivado do SLUS-20565 (sem valores do Urban Reign).
