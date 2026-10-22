@@ -127,6 +127,11 @@ Propósito: se o agente/modelo mudar (tokens, nova sessão), ESTE arquivo
 - ran-j/PS2Recomp: your ran-j/PS2Recomp clone
 - Ghidra 12.1.4 + ghidra-emotionengine-reloaded: instalados (mapa feito com eles).
 - REA (MCP): abrir binários com provider_id "ghidra" (pwntools é Linux-only).
+- XERJ (indexador p/ agentes, Apache-2.0):
+  C:\Users\Alessandro\bin\xerj\xerj-1.0.0-rc.97-x86_64-pc-windows-msvc\xerj.exe
+  nó local em http://localhost:9200 (roda destacado com --insecure; se morrer, reiniciar).
+  Corpora: dbz-bt4-recomp (implementação do PS2X_NET_*!), conrt (nosso runtime/), skill.
+  Uso: xerj search "<frase>" / xerj def <símbolo> — ANTES de abrir arquivos grandes.
 
 ---------------------------------------------------------------------
 9. COMANDOS ÚTEIS
