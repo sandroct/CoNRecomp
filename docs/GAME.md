@@ -80,7 +80,40 @@ Todas as referências `cdrom0:\` (14 strings) no ELF:
   netcnf.irx, msifrpc.irx, eznetcnf.irx, MCMAN.IRX, MCSERV.IRX, PPP.IRX, PPPOE.IRX, SMAP.IRX, "unloading smap".
 - Áudio: `liblgaud version 1.09.004, built on Sep 15 2003` (build de 2003 do audio).
 
-## Funções do SDK identificadas (Etapa 3, base do HLE do M1)
+## Visão do jogador (manual oficial — resumo de fatos, sem citar texto protegido)
+Fonte: manual EN do jogo (23 págs., lido por extração de imagens em 2026-10-21).
+- **Fluxo**: intro cinematográfica → **Main Menu** (Start New Game / Load Saved Game / Options / Credits) →
+  **Normal Game** (1–4 jogadores no mesmo PS2) ou **Internet Game**.
+- **Personagens (5 classes)**: Barbarian Warrior, Wood Elf Ranger, High Elf Cleric, Erudite Wizard,
+  Dark Elf Shadowknight; + gênero, aparência (pele/cabelo), 20 pontos em Strength/Intelligence/
+  Dexterity/Stamina, nome em grid alfabético (X + DONE). Bate com os `.lmp` de raça no disco
+  (`eru_male`, `elf_fdkl`...) e as strings do ELF (`barbarian`, `wood_elf`, `high_elf`, `dark_elf`).
+- **Dificuldades**: Adventurous / Courageous (nível 20–35) / Champion (35–50).
+- **Controles**: dpad navega menu + X seleciona + ● volta; START pausa; SELECT inventário;
+  X ataca; ■ interage/pega itens; ●/▲ habilidades (menu radial); R2 poção de vida, L2 poção de mana;
+  R3 automap; L1 troca melee/à distância.
+- **Combate/progressão**: vida/mana regeneram; morte volta ao último save point (pedestal);
+  quest journal; level up com pontos de atributo/habilidades; loot com limite de carga (Strength).
+- **Multiplayer (confirma o M6 e o ONLINE)**: co-op local com **Multitap (até 4)**; importar
+  personagens de saves do memory card; **Internet Game**: host ou join via **SOEGames.net**, com
+  configuração de rede (ISP) salva no memory card (8 MB); headset USB para voz (stack USB no disco).
+
+## GameIndex do PCSX2 (Etapa 3 — correções oficiais, evidência: pcsx2/bin/resources/GameIndex.yaml)
+
+**SLUS-20565 (a nossa, NTSC-U)** — compat 5:
+- `gameFixes`: `BlitInternalFPSHack` (corrige detecção de FPS interna em algumas áreas)
+- `gsHWFixes`: `textureInsideRT: 1` (corrige "metade direita"), `estimateTextureRegion: 1` e
+  `gpuPaletteConversion: 1` (performance + tamanho do hash cache)
+
+**SLES-52325 (PAL-M3, "Realms of EverQuest")** e **SLES-52373 (PAL-E-S)**: os mesmos acima **mais**
+`roundSprite: 1` (linhas em menus/HUD), `halfPixelOffset: 2` (lixo nas bordas), e a M3 também
+`PCRTCOverscan: 1` (imagem fora da tela). → Se um dia suportarmos as PAL, usar a lista completa.
+
+**Ação no port (M3)**: como usamos a GS do PCSX2 (`pcsx2gs.dll`), esses `gsHWFixes` precisam ser
+aplicados via a API da wrapper (config da GS) na inicialização — e `BlitInternalFPSHack` verificar se
+deve ser hook no jogo ou settings do host. Especificado em docs/ROADMAP.md (M3).
+
+## Visão do jogador (manual oficial — resumo de fatos, sem citar texto protegido)
 431 stubs nomeados por endereço (extracted/sdk_groups.txt, tools/stub_groups.py):
 - SIF/RPC (IOP): 52 · kernel EE (threads/dma/intc/sema): ~194 · libpad (+multitap): 29 · libmpeg: 25
 - libcdvd: 23 · libmc (memory card): 21 · libdma: 15 · GS (libgraph): 14 + misc 1 · VU/kernel: 41
