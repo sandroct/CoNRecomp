@@ -23,6 +23,7 @@ set(CON_HOST_SOURCES
     main.cpp
     port/log.cpp
     port/sha256.cpp
+    port/hle_bindings.cpp
 )
 
 # Reuse an already-built game code library when only host sources change (the full EE build is long).
