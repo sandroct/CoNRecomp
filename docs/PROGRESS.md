@@ -80,6 +80,23 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
   `tools/watchdog.ps1` (tarefa agendada), `tools/split_targets.py`, `tools/build_subset.py`.
 - **Pendente**: terminar as 16 partes (~1h) → rodar o link (`extracted/run_final_link.bat`) → `con.exe`.
 
+## Etapa 5b — correções de runtime pós-link (2026-10-23)
+
+- **`pcsx2gs.dll`**: tinha target no grafo (`bin\pcsx2gs.dll`) mas nunca havia sido
+  construído — o log acusava `did not load (error 126)` e caía no GS interno.
+  Construído via `cmake --build --target pcsx2gs` (3 edges, < 2 min); o
+  `gs_pcsx2_backend.cpp` carrega `exeDirectory()/pcsx2gs.dll`.
+- **CD image vazia**: `PS2Runtime::configureIoPathsFromElf` preenchia
+  elf/host/mcRoot/cdRoot mas **nunca `cdImage`** → o painel de debug mostrava
+  `CD image: <empty>` e jogos que leem `cdrom0:` não achavam dados.
+  Correção em `runtime/ps2xRuntime/src/lib/ps2_runtime.cpp`: se `cdImage` estiver
+  vazio, usa `PS2X_CD_IMAGE=<path>`; senão procura `.iso`/`.bin` com >= 32 MB
+  ao lado do ELF (a pasta do `con.exe`, onde a ISO é entregue) e loga
+  `[io] disc image found next to ELF: ...`. Prioridade: 1) env, 2) auto-detect,
+  3) mantém o que já estiver setado.
+- `ps2_runtime` recompilado (1 arquivo, ninja targeted) + relink manual do
+  `con.exe` pelo caminho das 16 partes.
+
 ## Etapa 4 — Primeira recompilação (iniciada 2026-10-21)
 - E4.1 — Ambiente: VS2022 BuildTools (MSVC 14.44), CMake 3.31 + Ninja OK. tools/win/vsenv.cmd ajustado
   para BuildTools (fallback Community/Professional/Enterprise).

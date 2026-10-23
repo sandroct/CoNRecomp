@@ -26,6 +26,10 @@ void ps2xSetLocalToHostGs(GS *gs); // ps2_memory.cpp: VIF1 FIFO image downloads
 void ps2xRequestVu1Trace(uint32_t fields); // vu/ps2_vu1_core.cpp: F8 debug capture
 #include "ps2x/iop/iop_subsystem.h"
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstdint>
+#include <cctype>
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
@@ -1360,6 +1364,62 @@ void PS2Runtime::configureIoPathsFromElf(const std::string &elfPath)
         paths.hostRoot = paths.elfDirectory;
         paths.cdRoot = paths.elfDirectory;
         paths.mcRoot = paths.elfDirectory / "mc0";
+    }
+
+    // Nothing used to fill cdImage, so games that read cdrom0: (Champions of
+    // Norrath among them) booted with an empty "CD image: <empty>" in the
+    // debug panel. Prefer PS2X_CD_IMAGE=<path>; otherwise pick a disc image
+    // (.iso/.bin, >= 32 MB to skip the ELF/DLLs next to it) lying next to the
+    // ELF, which is where ports ship the game data.
+    if (paths.cdImage.empty())
+    {
+        if (const char *env = std::getenv("PS2X_CD_IMAGE"); env && *env)
+        {
+            paths.cdImage = std::filesystem::path(env);
+        }
+        else if (!paths.elfDirectory.empty())
+        {
+            std::error_code ec;
+            std::filesystem::path best;
+            std::uintmax_t bestSize = 32ull * 1024ull * 1024ull;
+            for (std::filesystem::directory_iterator it(paths.elfDirectory, ec), end;
+                 !ec && it != end; it.increment(ec))
+            {
+                const std::filesystem::directory_entry &entry = *it;
+                std::error_code fec;
+                if (fec || !entry.is_regular_file(fec))
+                {
+                    continue;
+                }
+                const std::filesystem::path candidate = entry.path();
+                std::string ext = candidate.extension().string();
+                for (char &c : ext)
+                {
+                    c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+                }
+                if (ext != ".iso" && ext != ".bin")
+                {
+                    continue;
+                }
+                const std::uintmax_t size = std::filesystem::file_size(candidate, fec);
+                if (fec || size < bestSize)
+                {
+                    continue;
+                }
+                if (best.empty() || size > bestSize ||
+                    (size == bestSize && candidate < best))
+                {
+                    best = candidate;
+                    bestSize = size;
+                }
+            }
+            if (!best.empty())
+            {
+                paths.cdImage = best;
+                std::fprintf(stderr, "[io] disc image found next to ELF: %s\n",
+                             best.string().c_str());
+            }
+        }
     }
 
     setIoPaths(paths);
