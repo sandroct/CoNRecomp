@@ -97,6 +97,28 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
 - `ps2_runtime` recompilado (1 arquivo, ninja targeted) + relink manual do
   `con.exe` pelo caminho das 16 partes.
 
+## Etapa 5d — M1: boot até a tela de título (2026-10-23)
+
+- **CAUSA RAIZ 1 — stubs HLE sem `jr $ra`**: os 333 handlers C++ ligados por
+  `replaceFunction` (`src/port\hle_bindings.cpp`) nunca definiam `ctx->pc`; num
+  despacho direto do scheduler (tail-jump do `InitSys` → `sceSifInitRebootNotify`
+  → `memset`) o pc não saía do lugar: 10,8M chamadas/s, 0 ciclos, GIF 0 MB.
+  Corrigido com trampoline em `game_overrides.cpp` + pc de retorno explícito
+  nos 15 stubs do LibC (`extracted\fix_libc_pc.py`).
+- **CAUSA RAIZ 2 — resume sem pc**: `makeReady` retomava a thread no pc bloqueado
+  (a entrada do stub) em vez do `$ra` do chamador: o `engineInit` do jogo
+  (`engineInit__Ff`, espera no `WaitSema` 4 pelo flag de frame) nunca saía do
+  laço. Sem `resume.setPc`, a retomada agora usa `$ra`.
+- Diagnóstico que achou os dois: `PS2X_TRACE_DISPATCH=<n>` (despachos com
+  thread/inv/pend), `PS2X_HANG_SECS=<s>` + `[hang-dump]` (últimos 192 despachos),
+  `PS2X_TRACE_HLE=1` (chamada/retorno de cada handler HLE com a0-a3 e v0).
+- **RESULTADO**: `[gs] PCSX2 GS: 60 fields, 1.1 MB of GIF data`, tela de título
+  renderizada (captura em `extracted\run\con_screen.png`), controle SDL
+  detectado (`[input] SDL-0: Xbox One S Controller`).
+- Ainda pendente: a tela de título não avança sozinha (input scriptada via
+  `PS2X_PAD_SCRIPT` não surtiu efeito; suspeita de áudio/vídeo de abertura ou
+  do poll de pads).
+
 ## Etapa 5c — boot do jogo: cadeia iniciada, laço de despachos (2026-10-23)
 
 - Com `pcsx2gs.dll` construído e a ISO auto-detectada o jogo **inicia** (HLE 431/431, GS DX11,
