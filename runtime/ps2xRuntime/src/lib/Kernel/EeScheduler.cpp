@@ -487,6 +487,54 @@ namespace
         }
     };
     SchedulerLoopStats g_loopStats;
+
+    // PS2X_TRACE_DISPATCH=<n>: imprime os primeiros n despachos (pc/ra/sp) - mostra o ciclo de boot.
+    // PS2X_HANG_SECS=<s>: se o mesmo pc é despachado sem parar por mais de s segundos, imprime os últimos
+    // despachos ([hang-dump]) e para - um travamento deixa de ser cego (PROMPT_CoN.md, prioridade 2).
+    struct DispatchTrace
+    {
+        bool enabled = []() { const char *v = std::getenv("PS2X_TRACE_DISPATCH"); return v && *v; }();
+        uint64_t limit = []() { const char *v = std::getenv("PS2X_TRACE_DISPATCH"); return v ? std::strtoull(v, nullptr, 10) : 0ull; }();
+        uint64_t printed = 0;
+        int hangSeconds = []() { const char *v = std::getenv("PS2X_HANG_SECS"); return v ? std::atoi(v) : 0; }();
+        struct Entry { uint32_t pc, ra, sp; uint64_t cycle; };
+        static constexpr size_t kRing = 192u;
+        Entry ring[kRing]{};
+        size_t next = 0u;
+        uint32_t samePc = 0u;
+        std::chrono::steady_clock::time_point sameSince{};
+        bool dumped = false;
+
+        void record(uint32_t pc, uint32_t ra, uint32_t sp, uint64_t cycle)
+        {
+            ring[next] = Entry{pc, ra, sp, cycle};
+            next = (next + 1u) % kRing;
+            if (pc != samePc)
+            {
+                samePc = pc;
+                sameSince = std::chrono::steady_clock::now();
+            }
+        }
+        void printRing(const char *tag) const
+        {
+            std::fprintf(stderr, "[%s] ultimos %zu despachos (pc ra sp ciclo):\n", tag, kRing);
+            for (size_t i = 0; i < kRing; ++i)
+            {
+                const Entry &e = ring[(next + i) % kRing];
+                if (e.cycle == 0u && e.pc == 0u && i > 0u && ring[(next + i + kRing - 1u) % kRing].cycle == 0u)
+                    continue;
+                std::fprintf(stderr, "   pc=%08x ra=%08x sp=%08x ciclo=%llu\n", e.pc, e.ra, e.sp,
+                             static_cast<unsigned long long>(e.cycle));
+            }
+        }
+        bool hangExpired() const
+        {
+            if (hangSeconds <= 0 || samePc == 0u)
+                return false;
+            return std::chrono::steady_clock::now() - sameSince > std::chrono::seconds(hangSeconds);
+        }
+    };
+    DispatchTrace g_dispatchTrace;
 }
 
 void EeScheduler::run()
@@ -667,6 +715,25 @@ void EeScheduler::run()
         PS2Runtime::RecompiledFunction function = m_runtime.lookupFunction(context.pc);
 
         g_loopStats.lastPc = context.pc;
+        g_dispatchTrace.record(context.pc, getRegU32(&context, 31), getRegU32(&context, 29), m_eeCycle);
+        if (g_dispatchTrace.enabled && g_dispatchTrace.printed < g_dispatchTrace.limit)
+        {
+            std::fprintf(stderr, "[dispatch] pc=%08x ra=%08x sp=%08x ciclo=%llu\n", context.pc,
+                         getRegU32(&context, 31), getRegU32(&context, 29),
+                         static_cast<unsigned long long>(m_eeCycle));
+            ++g_dispatchTrace.printed;
+        }
+        if (g_dispatchTrace.hangSeconds > 0 && !g_dispatchTrace.dumped && g_dispatchTrace.hangExpired())
+        {
+            g_dispatchTrace.dumped = true;
+            std::fprintf(stderr, "[hang-dump] o pc=%08x e despachado sem parar ha %d s\n",
+                         g_dispatchTrace.samePc, g_dispatchTrace.hangSeconds);
+            g_dispatchTrace.printRing("hang-dump");
+            std::fprintf(stderr, "[hang-dump] contexto: ra=%08x sp=%08x gp=%08x a0=%08x a1=%08x a2=%08x a3=%08x\n",
+                         getRegU32(&context, 31), getRegU32(&context, 29), getRegU32(&context, 28),
+                         getRegU32(&context, 4), getRegU32(&context, 5), getRegU32(&context, 6),
+                         getRegU32(&context, 7));
+        }
         if (checkpointDue(kGuestDispatchCycles))
         {
             ++g_loopStats.checkpointSkips;
