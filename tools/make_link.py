@@ -51,8 +51,12 @@ def main():
     all_inputs = [p for p in libs if p.replace("/", "\\") == r"src\con_game_code.lib"]
 
     cmd = ["link.exe", "/nologo"]
-    cmd += flags.split()
-    cmd.append("/INCREMENTAL:NO")  # link nao-incremental: /LTCG sobre 90k objetos levaria horas
+    # /debug exigiria os PDBs dos .obj (nao existem: LNK1318/LNK4099); /LTCG sobre 17 GB levaria horas.
+    for f in flags.split():
+        if f.lower() in ("/debug", "/ltcg", "/incremental"):
+            continue
+        cmd.append(f)
+    cmd.append("/INCREMENTAL:NO")
     cmd.append("/subsystem:console")
     cmd.append("/FORCE:MULTIPLE")
     cmd.append("/STACK:16777216")
