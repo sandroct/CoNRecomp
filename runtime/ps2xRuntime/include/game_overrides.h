@@ -32,6 +32,12 @@ namespace ps2_game_overrides
     // Runtime helper for game-specific modules:
     // bind an address to an existing syscall/stub handler by name.
     bool bindAddressHandler(PS2Runtime &runtime, uint32_t address, std::string_view handlerName);
+
+    // True quando o endereço tem um handler C++ (stub HLE) no lugar da função
+    // recompilada: esses handlers podem não definir o pc (o scheduler dá o
+    // "jr $ra" implícito). Funções recompiladas NUNCA entram aqui - o retorno
+    // com o pc inalterado é a reentrada legítima de um laço interno.
+    bool isHleHandlerAddress(uint32_t address);
 }
 
 #define PS2_GAME_OVERRIDE_JOIN2(a, b) a##b

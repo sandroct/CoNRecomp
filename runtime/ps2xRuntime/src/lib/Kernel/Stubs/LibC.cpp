@@ -52,6 +52,8 @@ namespace ps2_stubs
         const uint32_t size = getRegU32(ctx, 4); // $a0
         const uint32_t guestAddr = runtime ? runtime->guestMalloc(size) : 0u;
         setReturnU32(ctx, guestAddr);
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void memalign(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -69,6 +71,8 @@ namespace ps2_stubs
         {
             runtime->guestFree(guestAddr);
         }
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void calloc(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -77,6 +81,8 @@ namespace ps2_stubs
         const uint32_t size = getRegU32(ctx, 5);  // $a1
         const uint32_t guestAddr = runtime ? runtime->guestCalloc(count, size) : 0u;
         setReturnU32(ctx, guestAddr);
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void realloc(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -85,6 +91,8 @@ namespace ps2_stubs
         const uint32_t newSize = getRegU32(ctx, 5);      // $a1
         const uint32_t newGuestAddr = runtime ? runtime->guestRealloc(oldGuestAddr, newSize) : 0u;
         setReturnU32(ctx, newGuestAddr);
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void memcpy(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -127,6 +135,8 @@ namespace ps2_stubs
 
         // returns dest pointer ($v0 = $a0)
         ctx->r[2] = ctx->r[4];
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void memset(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -165,6 +175,8 @@ namespace ps2_stubs
 
         // returns dest pointer ($v0 = $a0)
         ctx->r[2] = ctx->r[4];
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void memclr(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -201,6 +213,8 @@ namespace ps2_stubs
         }
 
         ctx->r[2] = ctx->r[4];
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void memmove(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -241,6 +255,8 @@ namespace ps2_stubs
 
         // returns dest pointer ($v0 = $a0)
         ctx->r[2] = ctx->r[4];
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void memcmp(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -267,6 +283,8 @@ namespace ps2_stubs
             }
         }
         setReturnS32(ctx, result);
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void strcpy(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -292,6 +310,8 @@ namespace ps2_stubs
 
         // returns dest pointer ($v0 = $a0)
         ctx->r[2] = ctx->r[4];
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void strncpy(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -317,6 +337,8 @@ namespace ps2_stubs
         }
         // returns dest pointer ($v0 = $a0)
         ctx->r[2] = ctx->r[4];
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void strlen(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -334,6 +356,8 @@ namespace ps2_stubs
             std::cerr << "strlen error: Invalid address provided: 0x" << std::hex << strAddr << std::dec << std::endl;
         }
         setReturnU32(ctx, (uint32_t)len);
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void strcmp(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -361,6 +385,8 @@ namespace ps2_stubs
                 result = 1; // Both null -> treat as different? Or 0? Let's say different.
         }
         setReturnS32(ctx, result);
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void strncmp(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -388,6 +414,8 @@ namespace ps2_stubs
                 result = 1; // Both null -> different
         }
         setReturnS32(ctx, result);
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void strcat(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -412,6 +440,8 @@ namespace ps2_stubs
 
         // returns dest pointer ($v0 = $a0)
         ctx->r[2] = ctx->r[4];
+        // jr $ra: um stub ligado por replaceFunction precisa devolver o pc
+        ctx->pc = getRegU32(ctx, 31);
     }
 
     void strncat(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)

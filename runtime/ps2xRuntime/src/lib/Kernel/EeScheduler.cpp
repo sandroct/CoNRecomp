@@ -5,6 +5,7 @@
 #include "runtime/ps2_async_vif.h"
 #include "runtime/ps2_pnach.h"
 #include "GuestKernelMemory.h"
+#include "game_overrides.h"
 
 // Defined in ps2_memory.cpp: latches bits in INTC_STAT (W1C register).
 void ps2xRaiseIntcStat(uint32_t bits) noexcept;
@@ -763,6 +764,20 @@ void EeScheduler::run()
                              static_cast<unsigned long long>(m_eeCycle), m_currentThreadId,
                              running->invocations.size(), m_pendingInvocations.size());
             saveSharedVu0Random(context);
+            // Um handler HLE (stub C++ ligado por replaceFunction) que não define
+            // o pc "retornou" para o seu $ra - o caminho do JAL já trata isso em
+            // dispatchGuestBranch (pc == alvo -> fallthrough), mas um despacho
+            // direto do scheduler (como o tail-jump do InitSys para o memset)
+            // re-despacharia o mesmo endereço para sempre: o boot do Champions
+            // of Norrath travava exatamente aí (memset de sceSifInitRebootNotify,
+            // 10M chamadas/s, 0 ciclos). SÓ para handlers HLE: numa função
+            // recompilada o retorno com o pc inalterado é a reentrada legítima
+            // de um laço interno (ex.: entry_00100158).
+            if (context.pc == g_loopStats.lastPc &&
+                ps2_game_overrides::isHleHandlerAddress(g_loopStats.lastPc))
+            {
+                context.pc = getRegU32(&context, 31);
+            }
             m_guestExecuting.store(false, std::memory_order_release);
             m_insideInterrupt = false;
             m_transferPending = false;
@@ -2478,9 +2493,19 @@ void EeScheduler::makeReady(GuestThread &item, int result, bool interruptSafe)
 {
     traceScheduler(m_vsyncTick, m_eeCycle, "R %d result=%d by=%d", item.id, result, m_currentThreadId);
     auto completion = std::move(item.wait.completion);
-    const EeResume resume = item.wait.resume;
+    EeResume resume = item.wait.resume;
     item.wait = {};
     setReturnS32(&item.activeContext(), result);
+    // Um bloqueio vindo de um handler HLE (WaitSema, SleepThread, sceGsSyncV...)
+    // precisa RETORNAR ao seu chamador: sem um pc explicito de resume a thread
+    // reentraria no stub e esperaria de novo para sempre - o boot do Champions
+    // of Norrath travava exatamente aí (WaitSema do engineInit retomado em
+    // 0x2d5120 em vez de 0x1909d8). Completions explicitas podem sobrescrever.
+    if (!resume.setPc)
+    {
+        resume.setPc = true;
+        resume.pc = getRegU32(&item.activeContext(), 31);
+    }
     item.resumeCompletion = std::move(completion);
     item.pendingResume = resume;
     if (item.suspendCount != 0)

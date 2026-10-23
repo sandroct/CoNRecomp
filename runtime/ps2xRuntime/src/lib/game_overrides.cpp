@@ -6,10 +6,13 @@
 #include "ps2_log.h"
 #include <algorithm>
 #include <cctype>
+#include <cstdio>
 #include <filesystem>
 #include <iostream>
 #include <mutex>
 #include <optional>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace
@@ -24,6 +27,57 @@ namespace
     {
         static std::vector<ps2_game_overrides::Descriptor> registry;
         return registry;
+    }
+
+    // Endereços cujo handler C++ (stub HLE) substituiu a função recompilada.
+    std::unordered_set<uint32_t> &hleHandlerAddresses()
+    {
+        static std::unordered_set<uint32_t> addresses;
+        return addresses;
+    }
+
+    // Handler original por endereço (o trampoline genérico consulta isso) e a
+    // chave de log do PS2X_TRACE_HLE.
+    std::unordered_map<uint32_t, PS2Runtime::RecompiledFunction> &hleRawHandlers()
+    {
+        static std::unordered_map<uint32_t, PS2Runtime::RecompiledFunction> handlers;
+        return handlers;
+    }
+
+    bool hleTraceEnabled()
+    {
+        static const bool enabled = []() { const char *v = std::getenv("PS2X_TRACE_HLE"); return v && *v; }();
+        return enabled;
+    }
+
+    // Trampoline de todos os handlers HLE: loga a chamada e o retorno
+    // (PS2X_TRACE_HLE=1) e dá o "jr $ra" implícito quando o handler não
+    // define o pc - sem isso qualquer despacho direto (tail-jump, scheduler)
+    // re-despacharia o mesmo endereço para sempre (travamento de boot: o
+    // memset do sceSifInitRebootNotify, 10M chamadas/s, 0 ciclos).
+    void hleTrampoline(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const uint32_t entry = ctx->pc;
+        const auto it = hleRawHandlers().find(entry);
+        if (it == hleRawHandlers().end())
+        {
+            ctx->pc = getRegU32(ctx, 31);
+            return;
+        }
+        if (hleTraceEnabled())
+        {
+            std::fprintf(stderr, "[hle-call] 0x%08x a0=%08x a1=%08x a2=%08x a3=%08x\n", entry,
+                         getRegU32(ctx, 4), getRegU32(ctx, 5), getRegU32(ctx, 6), getRegU32(ctx, 7));
+        }
+        it->second(rdram, ctx, runtime);
+        if (hleTraceEnabled())
+        {
+            std::fprintf(stderr, "[hle-ret ] 0x%08x v0=%08x pc=%08x\n", entry, getRegU32(ctx, 2), ctx->pc);
+        }
+        if (ctx->pc == entry)
+        {
+            ctx->pc = getRegU32(ctx, 31);
+        }
     }
 
     bool equalsIgnoreCaseAscii(std::string_view lhs, std::string_view rhs)
@@ -116,7 +170,23 @@ namespace ps2_game_overrides
             return false;
         }
 
-        return runtime.replaceFunction(address, resolved.value());
+        if (!runtime.replaceFunction(address, hleTrampoline))
+        {
+            return false;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(registryMutex());
+            hleHandlerAddresses().insert(address);
+            hleRawHandlers()[address] = resolved.value();
+        }
+        return true;
+    }
+
+    bool isHleHandlerAddress(uint32_t address)
+    {
+        std::lock_guard<std::mutex> lock(registryMutex());
+        return hleHandlerAddresses().find(address) != hleHandlerAddresses().end();
     }
 
     void applyMatching(PS2Runtime &runtime,
