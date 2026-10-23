@@ -97,6 +97,21 @@ Estilo do referência: data, comando/result, endereço, motivo da mudança.
 - `ps2_runtime` recompilado (1 arquivo, ninja targeted) + relink manual do
   `con.exe` pelo caminho das 16 partes.
 
+## Etapa 5c — boot do jogo: cadeia iniciada, laço de despachos (2026-10-23)
+
+- Com `pcsx2gs.dll` construído e a ISO auto-detectada o jogo **inicia** (HLE 431/431, GS DX11,
+  controle SDL), mas o EE fica num laço: `[sched-stats] calls≈10,8M/s, lastPc=0x3021b0 fixo`,
+  `[gs] 0 MB of GIF`.
+- Cadeia identificada nos fontes gerados: `_start` (0x100008) → 0x1001e8 `JAL ps2__InitSys`
+  (0x2DD8E8) → tail-jump `sceSifInitRebootNotify` (0x2DF5F8) → tail-jump `memset` (0x3021B0)
+  com `$a0=0x8E4548, $a1=0, $a2=0x200` (limpeza de 512 bytes legítima); `$ra` fica em 0x1001F0
+  (dentro do `_start`) — o retorno do memset volta para o próprio `_start`, que chama
+  `FlushCache` (0x2D5360) e segue para `func_2FFB08` (main). Todo o caminho existe e termina.
+- Instrumento novo (Prioridade 2 do plano): `PS2X_TRACE_DISPATCH=<n>` imprime os primeiros n
+  despachos do scheduler; `PS2X_HANG_SECS=<s>` imprime `[hang-dump]` com os últimos 192
+  despachos (pc/ra/sp/ciclo) + contexto (ra/sp/gp/a0-a3) quando o mesmo pc não avança por s
+  segundos. Em `runtime/ps2xRuntime/src/lib/Kernel/EeScheduler.cpp`.
+
 ## Etapa 4 — Primeira recompilação (iniciada 2026-10-21)
 - E4.1 — Ambiente: VS2022 BuildTools (MSVC 14.44), CMake 3.31 + Ninja OK. tools/win/vsenv.cmd ajustado
   para BuildTools (fallback Community/Professional/Enterprise).

@@ -718,6 +718,14 @@ void EeScheduler::run()
         g_dispatchTrace.record(context.pc, getRegU32(&context, 31), getRegU32(&context, 29), m_eeCycle);
         if (g_dispatchTrace.enabled && g_dispatchTrace.printed < g_dispatchTrace.limit)
         {
+            std::fprintf(stderr, "[dispatch] pc=%08x ra=%08x sp=%08x ciclo=%llu thread=%d inv=%zu pend=%zu\n", context.pc,
+                         getRegU32(&context, 31), getRegU32(&context, 29),
+                         static_cast<unsigned long long>(m_eeCycle), m_currentThreadId,
+                         running->invocations.size(), m_pendingInvocations.size());
+            ++g_dispatchTrace.printed;
+        }
+        if (g_dispatchTrace.enabled && g_dispatchTrace.printed < g_dispatchTrace.limit)
+        {
             std::fprintf(stderr, "[dispatch] pc=%08x ra=%08x sp=%08x ciclo=%llu\n", context.pc,
                          getRegU32(&context, 31), getRegU32(&context, 29),
                          static_cast<unsigned long long>(m_eeCycle));
@@ -749,6 +757,11 @@ void EeScheduler::run()
             m_unwinding = false;
             loadSharedVu0Random(context);
             function(m_rdram, &context, &m_runtime);
+            if (g_dispatchTrace.enabled && g_dispatchTrace.printed < g_dispatchTrace.limit)
+                std::fprintf(stderr, "[return] pc=%08x (era %08x) ciclo=%llu thread=%d inv=%zu pend=%zu\n",
+                             context.pc, g_dispatchTrace.samePc,
+                             static_cast<unsigned long long>(m_eeCycle), m_currentThreadId,
+                             running->invocations.size(), m_pendingInvocations.size());
             saveSharedVu0Random(context);
             m_guestExecuting.store(false, std::memory_order_release);
             m_insideInterrupt = false;
